@@ -1,0 +1,224 @@
+You are a senior systems engineer and Swift architect.
+
+Build Phase 1 of a scientific computation app.
+
+This phase implements ONLY a high-performance numeric calculator core with clean, hybrid-ready architecture and built-in performance metrics.
+
+This is NOT a toy calculator UI.
+
+The goal is to build a deterministic, testable computation engine foundation that we will extend later.
+
+────────────────────────────
+ABSOLUTE RULES
+────────────────────────────
+
+1. Keep UI minimal and ugly. Function only.
+2. No fancy features.
+3. No symbolic math.
+4. No Python.
+5. No OCR.
+6. No GPU.
+7. No chatbot.
+8. No overengineering.
+
+Only numeric + metrics.
+
+────────────────────────────
+TECH STACK
+────────────────────────────
+
+Swift
+SwiftUI
+Accelerate framework
+XCTest
+
+No external libraries.
+
+────────────────────────────
+ARCHITECTURE (MANDATORY)
+────────────────────────────
+
+Strict separation of layers:
+
+UI
+Parser
+AST
+Dispatcher
+Engine Protocol
+Numeric Engine
+Metrics
+Formatting
+Tests
+
+No math logic inside UI.
+
+────────────────────────────
+FOLDER STRUCTURE
+────────────────────────────
+
+/App
+/UI
+/Parser
+/AST
+/Engines
+MathEngine.swift
+NumericEngine.swift
+Dispatcher.swift
+/Metrics
+/Formatting
+/Tests
+/Benchmarks
+
+────────────────────────────
+PARSER REQUIREMENTS
+────────────────────────────
+
+Implement:
+
+Tokenizer
+Recursive descent OR Pratt parser
+AST tree
+
+Supported:
+
+* * * / ^
+      parentheses
+      sin cos tan log ln sqrt
+      constants pi e
+
+Parser outputs AST only.
+Parser must NOT evaluate.
+
+────────────────────────────
+ENGINE DESIGN (HYBRID READY)
+────────────────────────────
+
+Create:
+
+protocol MathEngine {
+func evaluate(ast: Node, context: Context) -> EvaluationReport
+}
+
+enum Mode {
+case numeric
+case symbolic
+}
+
+Dispatcher chooses engine.
+
+For now:
+symbolic returns "Not implemented".
+
+Only implement NumericEngine.
+
+────────────────────────────
+NUMERIC ENGINE REQUIREMENTS
+────────────────────────────
+
+Use:
+
+Double math
+Foundation functions
+Accelerate where useful
+
+Evaluator must:
+
+walk AST
+compute result
+return Result.number(Double)
+
+Must be deterministic.
+
+No globals.
+
+────────────────────────────
+METRICS / PROFILER (MANDATORY)
+────────────────────────────
+
+Every evaluation must measure:
+
+parseTimeMs
+evalTimeMs
+totalTimeMs
+peakMemoryKB
+astNodeCount
+expressionLength
+
+Create:
+
+struct EvaluationMetrics
+struct EvaluationReport { result, metrics }
+
+Return metrics with every evaluation.
+
+Display metrics in UI.
+Print metrics to console.
+
+────────────────────────────
+BENCHMARK TOOL (MANDATORY)
+────────────────────────────
+
+Create benchmark runner that:
+
+runs same expression 1000 times
+prints:
+avg time
+p95 time
+max time
+memory usage
+
+This must run from app or CLI.
+
+────────────────────────────
+UI REQUIREMENTS
+────────────────────────────
+
+Minimal:
+
+TextField (expression)
+Evaluate button
+Result label
+Metrics panel
+History list
+
+No styling.
+
+────────────────────────────
+TESTING
+────────────────────────────
+
+Write XCTest for:
+
+parser correctness
+AST structure
+numeric correctness
+performance stability
+edge cases
+
+App must pass all tests before considered complete.
+
+────────────────────────────
+DELIVERABLES
+────────────────────────────
+
+Generate:
+
+complete Swift project
+all source files
+parser
+AST
+numeric engine
+dispatcher
+metrics system
+benchmark runner
+unit tests
+minimal UI
+
+Everything must compile and run locally.
+
+────────────────────────────
+GOAL
+────────────────────────────
+
+Deliver a clean, fast, measurable numeric computation engine foundation that can scale safely in future phases.
+Focus on correctness, modularity, and performance — not UI or features.

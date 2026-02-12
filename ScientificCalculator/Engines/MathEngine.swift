@@ -1,0 +1,72 @@
+// Engines/MathEngine.swift
+// Scientific Calculator - Engine Protocol
+
+import Foundation
+
+/// Evaluation context with optional variable bindings
+struct EvaluationContext {
+    /// Variable name → value bindings for evaluation
+    let variableBindings: [String: Double]
+    
+    static let empty = EvaluationContext(variableBindings: [:])
+    
+    /// Create context with variable bindings
+    static func withBindings(_ bindings: [String: Double]) -> EvaluationContext {
+        EvaluationContext(variableBindings: bindings)
+    }
+}
+
+/// Result of an evaluation
+enum EvaluationResult: Equatable {
+    case number(Double)
+    case symbolic(String, latex: String, metadata: [String: Double]?)
+    case error(String)
+    case notImplemented(String)
+    
+    var isSuccess: Bool {
+        switch self {
+        case .number, .symbolic:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var doubleValue: Double? {
+        if case .number(let value) = self { return value }
+        return nil
+    }
+    
+    var symbolicValue: (result: String, latex: String)? {
+        if case .symbolic(let result, let latex, _) = self {
+            return (result, latex)
+        }
+        return nil
+    }
+    
+    var errorMessage: String? {
+        switch self {
+        case .error(let msg): return msg
+        case .notImplemented(let msg): return msg
+        default: return nil
+        }
+    }
+}
+
+/// Computation mode
+enum ComputationMode {
+    case numeric
+    case symbolic
+}
+
+/// Protocol for math evaluation engines
+protocol MathEngine {
+    /// Evaluate AST and return result with metrics
+    func evaluate(ast: Node, context: EvaluationContext) -> EvaluationResult
+    
+    /// Engine identifier
+    var engineName: String { get }
+    
+    /// Supported mode
+    var mode: ComputationMode { get }
+}

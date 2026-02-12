@@ -1,0 +1,261 @@
+✅ Phase 1 — Numeric Foundation (Core Engine)
+Goal
+
+Create a deterministic, fast, measurable calculator core.
+
+Build
+
+SwiftUI minimal UI
+
+custom tokenizer + parser
+
+AST
+
+NumericEngine (Double math)
+
+Dispatcher (hybrid-ready)
+
+Metrics system (time/memory)
+
+History
+
+Benchmark tool
+
+Unit tests
+
+Tech
+
+Swift + Accelerate
+
+Deliverable
+
+Working numeric scientific calculator
+
+Exit Criteria
+
+parse < 1 ms
+
+eval < 1 ms
+
+stable memory
+
+100% tests pass
+
+no crashes
+
+Complexity
+
+Low–Medium
+
+Risk
+
+Low
+
+Why first
+
+Everything depends on this.
+
+✅ Phase 2 — Symbolic Math (Hybrid Mode)
+Goal
+
+Add algebraic reasoning capability.
+
+Build
+
+Python bridge
+
+SymPy integration
+
+AST → SymPy converter
+
+symbolic mode switch
+
+simplify/solve/differentiate/integrate
+
+LaTeX formatting
+
+Deliverable
+
+Hybrid calculator (numeric + symbolic)
+
+Exit Criteria
+
+symbolic ops < 300 ms
+
+correct algebraic outputs
+
+no architecture refactor required
+
+Complexity
+
+Medium
+
+Risk
+
+Medium (bridge complexity)
+
+Why here
+
+Big capability jump with minimal UI change.
+
+✅ Phase 3 — Advanced Numeric Tools
+Goal
+
+Compete with pro calculators.
+
+Build
+
+matrices
+
+statistics
+
+graph plotting
+
+unit conversion
+
+precision modes
+
+Tech
+
+Accelerate / BLAS
+
+Deliverable
+
+“Pro scientific calculator”
+
+Exit Criteria
+
+matrix ops fast (< few ms)
+
+stable memory
+
+smooth graphs
+
+Complexity
+
+Medium
+
+Risk
+
+Low
+
+Why here
+
+Enhances usefulness before adding heavy ML features.
+
+✅ Phase 4 — OCR Equation Engine (Unique Differentiator)
+Goal
+
+Extract math from papers/images and compute automatically.
+
+Build
+
+camera/PDF input
+
+math OCR
+
+LaTeX output
+
+parse → AST → evaluate
+
+verification mode
+
+Tech
+
+Mathpix or PyTorch OCR
+
+existing parser/engine
+
+Deliverable
+
+Scan equation → compute/verify
+
+Exit Criteria
+
+≥ 90% recognition accuracy
+
+end-to-end < 2s
+
+correct parsing of typical papers
+
+Complexity
+
+High
+
+Risk
+
+High (OCR accuracy)
+
+Why here
+
+This is the product’s unique value.
+
+✅ Phase 5 — Assistant + Automation
+Goal
+
+Speed up workflow.
+
+Build
+
+natural language → expression translator
+
+local chatbot helper
+
+browser extension (select → solve)
+
+quick popup solver
+
+Deliverable
+
+Productivity features
+
+Exit Criteria
+
+stable parsing
+
+no LLM used for math (only translation)
+
+Complexity
+
+Medium
+
+Risk
+
+Low
+
+Why here
+
+Nice-to-have UX layer, not core tech.
+
+✅ Phase 6 — Performance & GPU (Optional Optimization)
+Goal
+
+Accelerate heavy workloads.
+
+Build (only if needed)
+
+Metal compute kernels
+
+PyTorch GPU for OCR
+
+large matrix acceleration
+
+Deliverable
+
+Faster heavy math
+
+Exit Criteria
+
+measurable speedup vs CPU
+
+Complexity
+
+High
+
+Risk
+
+Medium
+
+Why last
+
+Premature optimization wastes time.

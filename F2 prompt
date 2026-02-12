@@ -1,0 +1,273 @@
+You are a senior systems engineer extending an existing Swift scientific computation engine.
+
+Phase 1 already exists and is COMPLETE:
+
+* AST parser
+* NumericEngine
+* Dispatcher
+* Metrics system
+* Minimal SwiftUI
+* Benchmarking
+
+You MUST NOT refactor or rewrite Phase 1 code.
+
+Your task is to implement Phase 2: Symbolic Math (Hybrid Mode) safely and cleanly.
+
+────────────────────────────
+PRIMARY GOAL
+────────────────────────────
+
+Add algebraic reasoning capability using Python + SymPy.
+
+The architecture must remain:
+
+Parser → AST → Dispatcher → Engine
+
+Symbolic must plug in as another engine only.
+
+NO other layers may change.
+
+────────────────────────────
+ABSOLUTE RULES
+────────────────────────────
+
+1. DO NOT modify parser or AST structure.
+2. DO NOT modify NumericEngine.
+3. DO NOT add math logic inside UI.
+4. DO NOT mix numeric + symbolic logic.
+5. DO NOT trust LLM for math.
+6. Symbolic must be isolated behind SymbolicEngine.
+
+Only extend — never refactor.
+
+────────────────────────────
+TECH STACK
+────────────────────────────
+
+Swift
+SwiftUI
+Python 3
+SymPy
+Local Python server (HTTP or IPC)
+
+Do NOT embed interpreter yet.
+Run Python locally for simplicity.
+
+────────────────────────────
+SCOPE (ONLY IMPLEMENT THESE)
+────────────────────────────
+
+Build:
+
+• Python bridge
+• SymPy service
+• AST → SymPy converter
+• SymbolicEngine
+• mode switch (numeric/symbolic)
+• LaTeX formatting
+• symbolic metrics
+• tests
+
+Do NOT build:
+
+* OCR
+* chatbot
+* GPU
+* extension
+* UI redesign
+
+────────────────────────────
+ARCHITECTURE REQUIREMENTS
+────────────────────────────
+
+Create:
+
+/Engines
+SymbolicEngine.swift
+
+/PythonBridge
+PythonClient.swift
+SympyService.py
+
+/Symbolic
+ASTToSympyConverter.swift
+LatexFormatter.swift
+
+────────────────────────────
+SYMBOLIC ENGINE CONTRACT
+────────────────────────────
+
+Must conform to existing protocol:
+
+protocol MathEngine {
+func evaluate(ast: Node, context: Context) -> EvaluationReport
+}
+
+SymbolicEngine must:
+
+1. convert AST → SymPy string
+2. send to Python
+3. run SymPy operation
+4. receive result (string/latex)
+5. return Result.symbolic(String)
+6. attach metrics
+
+Numeric engine must remain untouched.
+
+────────────────────────────
+PYTHON SERVICE REQUIREMENTS
+────────────────────────────
+
+Create local Python service using SymPy.
+
+Expose endpoints:
+
+/simplify
+/solve
+/differentiate
+/integrate
+/evaluate
+
+Input:
+expression string
+
+Output:
+result string
+latex string
+execution time
+
+Example:
+
+Input:
+"sin(x)**2 + cos(x)**2"
+
+Output:
+"1"
+
+Use SymPy internally for all math.
+
+────────────────────────────
+AST → SYMPY CONVERSION
+────────────────────────────
+
+Implement converter that maps:
+
+* * * / ^ → SymPy syntax
+      functions → sympy equivalents
+      constants → pi, E
+      variables → symbols
+
+Examples:
+
+x^2 → x**2
+sin(x) → sin(x)
+sqrt(x) → sqrt(x)
+
+Must be deterministic and safe.
+
+No regex hacks.
+
+────────────────────────────
+METRICS (MANDATORY)
+────────────────────────────
+
+Symbolic evaluation must record:
+
+pythonCallTimeMs
+conversionTimeMs
+totalTimeMs
+memoryUsageKB
+expressionLength
+
+Add to existing EvaluationMetrics.
+
+Metrics must display in UI.
+
+────────────────────────────
+UI CHANGES (MINIMAL)
+────────────────────────────
+
+Add only:
+
+mode toggle:
+[ Numeric | Symbolic ]
+
+Everything else unchanged.
+
+No styling.
+
+────────────────────────────
+TESTS REQUIRED
+────────────────────────────
+
+Unit tests:
+
+simplify(sin(x)^2 + cos(x)^2) → 1
+diff(x^2, x) → 2*x
+integrate(2*x, x) → x^2
+solve(x^2-4, x) → ±2
+
+Edge tests:
+invalid expressions
+large expressions
+timeouts
+Python unavailable
+
+Performance:
+symbolic ops < 300ms typical
+
+Must not crash app.
+
+────────────────────────────
+BENCHMARKS
+────────────────────────────
+
+Run:
+
+100 symbolic evaluations
+
+Report:
+avg time
+p95
+max
+
+Must remain stable.
+
+────────────────────────────
+DELIVERABLES
+────────────────────────────
+
+Generate:
+
+SymbolicEngine.swift
+Python bridge
+SymPy service
+AST converter
+LaTeX formatter
+tests
+benchmark scripts
+
+Everything must run locally without cloud dependency.
+
+────────────────────────────
+FINAL GOAL
+────────────────────────────
+
+Deliver a clean hybrid calculator:
+
+same parser
+same AST
+same dispatcher
+
+Two engines:
+
+Numeric → fast doubles
+Symbolic → SymPy algebra
+
+Plug-in architecture only.
+
+No rewrites.
+No hacks.
+No mixing logic.
+
+Performance measured always.

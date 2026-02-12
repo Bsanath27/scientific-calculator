@@ -1,0 +1,2 @@
+latex: $e^{i\pi} + 1$
+expected: exp(i*pi) + 1

@@ -1,0 +1,2 @@
+latex: $3 \times 4 + 5$
+expected: 3*4 + 5

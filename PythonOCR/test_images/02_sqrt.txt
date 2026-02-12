@@ -1,0 +1,2 @@
+latex: $\sqrt{16}$
+expected: sqrt(16)

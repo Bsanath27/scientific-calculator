@@ -1,0 +1,50 @@
+#!/bin/bash
+# Script to manually add Phase 2 files to Xcode project
+# Run this from the scientific-calculator directory
+
+echo "==================================="
+echo "Phase 2 - Xcode Project Setup"
+echo "==================================="
+
+echo ""
+echo "New files to add to Xcode project:"
+echo ""
+echo "1. ScientificCalculator/PythonBridge/PythonClient.swift"
+echo "2. ScientificCalculator/Engines/SymbolicEngine.swift"
+echo "3. ScientificCalculator/Symbolic/ASTToSympyConverter.swift"
+echo "4. ScientificCalculator/Symbolic/LatexFormatter.swift"
+echo ""
+
+echo "To add these files in Xcode:"
+echo "1. Open ScientificCalculator.xcodeproj in Xcode"
+echo "2. Right-click on the 'ScientificCalculator' group"
+echo "3. Select 'Add Files to ScientificCalculator...'"
+echo "4. Navigate to each file listed above and add it"
+echo "5. Ensure 'Copy items if needed' is UNCHECKED"
+echo "6. Ensure 'ScientificCalculator' target is CHECKED"
+echo "7. Click 'Add'"
+echo ""
+
+echo "Alternatively, drag and drop these files into Xcode:"
+echo "- PythonBridge/PythonClient.swift → into PythonBridge group"
+echo "- Engines/SymbolicEngine.swift → into Engines group"
+echo "- Symbolic/ASTToSympyConverter.swift → into Symbolic group (create if needed)"
+echo "- Symbolic/LatexFormatter.swift → into Symbolic group"
+echo ""
+
+echo "After adding files, verify:"
+echo "- All files appear in the Project Navigator"
+echo "- All files have the ScientificCalculator target checked"
+echo "- Build succeeds (⌘B)"
+echo ""
+
+echo "==================================="
+echo "Python Service Setup"
+echo "==================================="
+echo ""
+echo "To start the Python service:"
+echo "cd /Users/sanathbs/03_Dev_Lab/scientific-calculator/PythonBridge"
+echo "python3 SympyService.py"
+echo ""
+echo "Service will run on http://127.0.0.1:5000"
+echo "==================================="

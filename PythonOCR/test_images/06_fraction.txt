@@ -1,0 +1,2 @@
+latex: $\frac{22}{7}$
+expected: 22/7

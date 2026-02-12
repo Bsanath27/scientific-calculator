@@ -1,0 +1,2 @@
+latex: $\sin\left(\frac{\pi}{2}\right)$
+expected: sin(pi/2)
