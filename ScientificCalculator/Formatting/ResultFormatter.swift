@@ -12,7 +12,7 @@ enum ResultFormatter {
             return format(value)
         case .symbolic(let result, let latex, _):
             return "\(result)\n\(latex)"
-        case .error(let msg):
+        case .error(let msg, _):
             return "Error: \(msg)"
         case .notImplemented(let msg):
             return "Not Implemented: \(msg)"

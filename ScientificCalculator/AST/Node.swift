@@ -29,6 +29,9 @@ indirect enum Node: Equatable {
     /// Variable reference (e.g., x)
     case variable(String, position: SourcePosition)
     
+    /// Symbolic function call (e.g., f(x, y))
+    case symbolicFunction(name: String, arguments: [Node], position: SourcePosition)
+    
     /// Get position of this node
     var position: SourcePosition {
         switch self {
@@ -37,7 +40,8 @@ indirect enum Node: Equatable {
              .unary(_, _, let pos),
              .function(_, _, let pos),
              .constant(_, let pos),
-             .variable(_, let pos):
+             .variable(_, let pos),
+             .symbolicFunction(_, _, let pos):
             return pos
         }
     }
@@ -53,6 +57,8 @@ indirect enum Node: Equatable {
             return 1 + left.nodeCount + right.nodeCount
         case .function(_, let argument, _):
             return 1 + argument.nodeCount
+        case .symbolicFunction(_, let args, _):
+            return 1 + args.reduce(0) { $0 + $1.nodeCount }
         }
     }
 }
@@ -73,6 +79,9 @@ extension Node: CustomStringConvertible {
             return c.rawValue
         case .variable(let name, _):
             return name
+        case .symbolicFunction(let name, let args, _):
+            let argList = args.map { $0.description }.joined(separator: ", ")
+            return "\(name)(\(argList))"
         }
     }
 }

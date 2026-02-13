@@ -7,6 +7,7 @@ struct ContentView: View {
     @StateObject private var viewModel = CalculatorViewModel()
     @State private var showTools = false
     @State private var showOCR = false
+    @State private var showAssistant = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -15,6 +16,7 @@ struct ContentView: View {
                 Text("Scientific Calculator Core")
                     .font(.headline)
                 Spacer()
+                Button("Assistant") { showAssistant = true }
                 Button("OCR") { showOCR = true }
                 Button("Tools") { showTools = true }
             }
@@ -121,7 +123,7 @@ struct ContentView: View {
             Spacer()
             
             // Footer
-            Text("Phase 4: OCR Equation Engine")
+            Text("Phase 5: Assistant + Automation")
                 .font(.caption2)
                 .foregroundColor(.secondary)
         }
@@ -132,6 +134,12 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showOCR) {
             OCRView { expression in
+                viewModel.expression = expression
+                viewModel.evaluate()
+            }
+        }
+        .sheet(isPresented: $showAssistant) {
+            AssistantView { expression in
                 viewModel.expression = expression
                 viewModel.evaluate()
             }

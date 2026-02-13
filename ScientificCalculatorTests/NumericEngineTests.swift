@@ -126,7 +126,7 @@ final class NumericEngineTests: XCTestCase {
     
     func testDivisionByZero() {
         let report = dispatcher.evaluate(expression: "1/0")
-        if case .error(let msg) = report.result {
+        if case .error(let msg, _) = report.result {
             XCTAssertTrue(msg.contains("Division by zero"))
         } else {
             XCTFail("Expected division by zero error")
@@ -135,7 +135,7 @@ final class NumericEngineTests: XCTestCase {
     
     func testLogNegative() {
         let report = dispatcher.evaluate(expression: "log(-1)")
-        if case .error(let msg) = report.result {
+        if case .error(let msg, _) = report.result {
             XCTAssertTrue(msg.contains("positive"))
         } else {
             XCTFail("Expected domain error")
@@ -144,7 +144,7 @@ final class NumericEngineTests: XCTestCase {
     
     func testSqrtNegative() {
         let report = dispatcher.evaluate(expression: "sqrt(-1)")
-        if case .error(let msg) = report.result {
+        if case .error(let msg, _) = report.result {
             XCTAssertTrue(msg.contains("non-negative"))
         } else {
             XCTFail("Expected domain error")

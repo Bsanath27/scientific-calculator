@@ -39,15 +39,26 @@ enum PythonClientError: Error, LocalizedError {
 
 /// HTTP client for SymPy Python service
 class PythonClient {
+    /// Default base URL for local Python SymPy service.
+    /// This is created once and treated as a configuration constant; if the URL
+    /// string is ever invalid, we fail fast at startup rather than crashing on
+    /// user input later.
+    private static let defaultBaseURL: URL = {
+        guard let url = URL(string: "http://127.0.0.1:5001") else {
+            fatalError("Invalid default Python service URL")
+        }
+        return url
+    }()
+    
     private let baseURL: URL
     private let timeout: TimeInterval
     private let session: URLSession
     
     /// Initialize client with service URL
     /// - Parameters:
-    ///   - baseURL: Base URL of Python service (default: http://127.0.0.1:5000)
+    ///   - baseURL: Base URL of Python service (default: http://127.0.0.1:5001)
     ///   - timeout: Request timeout in seconds (default: 30.0)
-    init(baseURL: URL = URL(string: "http://127.0.0.1:5001")!, timeout: TimeInterval = 30.0) {
+    init(baseURL: URL = PythonClient.defaultBaseURL, timeout: TimeInterval = 30.0) {
         self.baseURL = baseURL
         self.timeout = timeout
         

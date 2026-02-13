@@ -7,11 +7,12 @@ Exposes SymPy functionality via REST API for Swift calculator
 from flask import Flask, request, jsonify
 from sympy import (
     sympify, simplify, solve, diff, integrate, sqrt, 
-    sin, cos, tan, log, ln, exp, pi, E, Symbol, latex
+    sin, cos, tan, log, ln, exp, pi, E, Symbol, latex, Function
 )
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application
 import time
 import traceback
+import ast
 
 app = Flask(__name__)
 
@@ -23,7 +24,21 @@ def safe_sympify(expression_str):
     try:
         # Convert ^ to ** for exponentiation
         expression_str = expression_str.replace('^', '**')
-        return parse_expr(expression_str, transformations=TRANSFORMATIONS)
+        local_dict = {'Function': Function, 'Symbol': Symbol, 'sin': sin, 'cos': cos, 'tan': tan, 'log': log, 'ln': ln, 'sqrt': sqrt, 'exp': exp, 'pi': pi, 'E': E}
+        
+        # Detect undefined functions using AST to prevent them being parsed as Symbols * Tuple
+        try:
+            tree = ast.parse(expression_str)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Call):
+                    if isinstance(node.func, ast.Name):
+                        func_name = node.func.id
+                        if func_name not in local_dict:
+                            local_dict[func_name] = Function(func_name)
+        except Exception:
+            pass
+            
+        return parse_expr(expression_str, local_dict=local_dict, transformations=TRANSFORMATIONS)
     except Exception as e:
         raise ValueError(f"Invalid expression: {str(e)}")
 
@@ -161,6 +176,8 @@ def evaluate_endpoint():
         return error_response(str(e), 400)
     except Exception as e:
         app.logger.error(f"Evaluate error: {traceback.format_exc()}")
+        return error_response(f"Internal error: {str(e)}", 500)
+
 @app.route('/verify', methods=['POST'])
 def verify_endpoint():
     """
@@ -214,4 +231,4 @@ if __name__ == '__main__':
     print("  POST /verify")
     print("=" * 50)
     
-    app.run(host='127.0.0.1', port=5001, debug=True)
+    app.run(host='127.0.0.1', port=5001, debug=False)

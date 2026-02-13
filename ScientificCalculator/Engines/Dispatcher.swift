@@ -61,9 +61,10 @@ final class Dispatcher {
             let evalStart = CFAbsoluteTimeGetCurrent()
             var result = currentEngine.evaluate(ast: ast, context: .empty)
             
-            // Fallback to Symbolic Engine for equations or undefined variables
-            if case .error(let msg) = result, mode == .numeric {
-                if msg.contains("Cannot evaluate equality") || msg.contains("Undefined variable") {
+            // Fallback to Symbolic Engine for equations or undefined variables,
+            // based on structured error issues rather than fragile string matching.
+            if case .error(let msg, let issue) = result, mode == .numeric {
+                if issue == .cannotEvaluateEquality || issue == .undefinedVariable || issue == .symbolicComputationRequired {
                     #if DEBUG
                     print("Dispatcher: Numeric evaluation failed ('\(msg)'). Switching to Symbolic Engine.")
                     #endif

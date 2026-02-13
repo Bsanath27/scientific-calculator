@@ -99,6 +99,7 @@ struct Tokenizer {
         case "=": return .binaryOperator(.equals)
         case "(": return .leftParen
         case ")": return .rightParen
+        case ",": return .comma
         default:
             throw ParserError.invalidNumber(text: String(char), position: offset - 1)
         }

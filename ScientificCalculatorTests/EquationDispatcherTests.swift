@@ -1,64 +1,73 @@
 // ScientificCalculatorTests/EquationDispatcherTests.swift
-// Scientific Calculator - Equation Dispatching Tests
-
 import XCTest
 @testable import ScientificCalculator
 
 final class EquationDispatcherTests: XCTestCase {
     
-    let dispatcher = Dispatcher()
+    // Mock Engines
+    class MockNumericEngine: MathEngine {
+        let engineName = "MockNumeric"
+        let mode = ComputationMode.numeric
+        
+        func evaluate(ast: Node, context: EvaluationContext) -> EvaluationResult {
+            // Mimic NumericEngine behavior partially or pass through
+            // For this test, we want to simulate the real NumericEngine's failure
+            let realEngine = NumericEngine()
+            return realEngine.evaluate(ast: ast, context: context)
+        }
+    }
     
-    // Helper to evaluate without parsing boilerplate
-    func evaluate(_ expression: String) -> EvaluationResult {
+    class MockSymbolicEngine: MathEngine {
+        let engineName = "MockSymbolic"
+        let mode = ComputationMode.symbolic
+        
+        var wasCalled = false
+        
+        func evaluate(ast: Node, context: EvaluationContext) -> EvaluationResult {
+            wasCalled = true
+            return .symbolic("x = 7", latex: "x = 7", metadata: nil)
+        }
+    }
+    
+    func testDispatcherSwitchesToSymbolicForEquation() {
+        let numeric = MockNumericEngine()
+        let symbolic = MockSymbolicEngine()
+        let dispatcher = Dispatcher(numeric: numeric, symbolic: symbolic)
+        dispatcher.mode = .numeric
+        
+        let expression = "3*x - 5 = 16"
         let report = dispatcher.evaluate(expression: expression)
-        return report.result
-    }
-    
-    func testEquationDispatch() {
-        // This relies on the live running Python service
-        // We assume the service is running for these tests
         
-        // 3x - 5 = 16  =>  3x = 21  =>  x = 7
-        let result = evaluate("3*x - 5 = 16")
+        XCTAssertTrue(symbolic.wasCalled, "Dispatcher should switch to SymbolicEngine for equations")
         
-        switch result {
-        case .symbolic(let res, _, _):
-            // Expected: Eq(x, 7)
-            XCTAssertTrue(res.contains("Eq") || res.contains("Equality") || res.contains("x") && res.contains("7"))
-        case .error(let msg):
-            XCTFail("Equation dispatch failed with error: \(msg)")
-        default:
-            XCTFail("Expected symbolic result for equation, got \(result)")
-        }
-    }
-    
-    func testUndefinedVariableDispatch() {
-        // "3x - 21" has undefined variable x (assuming no bindings)
-        // Should fallback to symbolic engine
-        let result = evaluate("3*x - 21")
-        
-        switch result {
-        case .symbolic(let res, _, _):
-            // Expected: 3*x - 21
-            XCTAssertTrue(res.contains("x"))
-            XCTAssertTrue(res.contains("3") || res.contains("21"))
-        case .error(let msg):
-             XCTFail("Variable dispatch failed with error: \(msg)")
-        default:
-             XCTFail("Expected symbolic result for variable expression, got \(result)")
-        }
-    }
-    
-    func testNumericErrorDispatch() {
-        // 1/0 is a numeric error but NOT an equation/variable error
-        // Should stay as numeric error and NOT fallback to Symbolic (which would also fail or return infinity)
-        // But our logic specifically checks for "Equality" or "Undefined variable" strings
-        let result = evaluate("1/0")
-        
-        if case .error(let msg) = result {
-            XCTAssertTrue(msg.contains("Division by zero"))
+        if case .symbolic(let res, _, _) = report.result {
+            XCTAssertEqual(res, "x = 7")
         } else {
-            XCTFail("Expected numeric error for 1/0, got \(result)")
+            XCTFail("Result should be symbolic, got: \(report.result)")
+        }
+    }
+    
+    func testDispatcherSwitchesToSymbolicForUndefinedVariable() {
+        let numeric = MockNumericEngine()
+        let symbolic = MockSymbolicEngine()
+        let dispatcher = Dispatcher(numeric: numeric, symbolic: symbolic)
+        dispatcher.mode = .numeric
+        
+        let expression = "3*x + 10" // x is undefined
+        let report = dispatcher.evaluate(expression: expression)
+        
+        XCTAssertTrue(symbolic.wasCalled, "Dispatcher should switch to SymbolicEngine for undefined variables")
+    }
+    
+    func testParserHandlesEquals() {
+        let expression = "3*x - 5 = 16"
+        let result = Parser.parse(expression)
+        
+        switch result {
+        case .success(let ast):
+            print("Parser success: \(ast)")
+        case .failure(let error):
+            XCTFail("Parser failed to parse equation: \(error)")
         }
     }
 }

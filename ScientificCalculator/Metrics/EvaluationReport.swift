@@ -15,7 +15,7 @@ struct EvaluationReport {
             return ResultFormatter.format(value)
         case .symbolic(let result, let latex, _):
             return "\(result)\n\(latex)"
-        case .error(let message):
+        case .error(let message, _):
             return "Error: \(message)"
         case .notImplemented(let message):
             return message

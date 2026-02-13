@@ -183,16 +183,28 @@ struct MatrixToolView: View {
             metricsText = formatMetrics(r.metrics)
             
         case "Determinant":
+            guard a.isSquare else {
+                result = "Error: Determinant requires a square matrix"
+                return
+            }
             let r = engine.determinant(a)
             result = ResultFormatter.format(r.value)
             metricsText = formatMetrics(r.metrics)
             
         case "Inverse":
+            guard a.isSquare else {
+                result = "Error: Inverse requires a square matrix"
+                return
+            }
             let r = engine.inverse(a)
             result = r.value?.description ?? "Matrix is singular (no inverse)"
             metricsText = formatMetrics(r.metrics)
             
         case "Eigenvalues":
+            guard a.isSquare else {
+                result = "Error: Eigenvalues require a square matrix"
+                return
+            }
             let r = engine.eigenvalues(a)
             let eigenStr = zip(r.value.real, r.value.imaginary).map { real, imag in
                 if abs(imag) < 1e-10 {

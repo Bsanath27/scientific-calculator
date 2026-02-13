@@ -26,8 +26,13 @@ enum PlotColor: String, CaseIterable {
     
     var next: PlotColor {
         let all = PlotColor.allCases
-        let idx = all.firstIndex(of: self)!
-        return all[(idx + 1) % all.count]
+        // Use a safe lookup; in practice `self` will always be in `allCases`,
+        // but this avoids any possibility of a crash if the enum changes.
+        if let idx = all.firstIndex(of: self) {
+            return all[(idx + 1) % all.count]
+        } else {
+            return .blue
+        }
     }
 }
 
@@ -44,8 +49,17 @@ final class GraphEngine {
         xMax: Double = 10.0,
         pointCount: Int = 300
     ) -> NumericToolResult<[PlotPoint]> {
-        precondition(xMin < xMax, "xMin must be less than xMax")
-        precondition(pointCount > 1, "Need at least 2 points")
+        // Validate user-controlled parameters defensively; on invalid ranges we
+        // return an empty result with zeroed metrics rather than crashing.
+        guard xMin < xMax, pointCount > 1 else {
+            let metrics = NumericToolMetrics(
+                executionTimeMs: 0,
+                memoryUsageKB: 0,
+                dataSize: 0,
+                operationType: "Graph Sample"
+            )
+            return NumericToolResult(value: [], metrics: metrics)
+        }
         
         return NumericToolRunner.run(operationType: "Graph Sample", dataSize: pointCount) {
             // Parse once

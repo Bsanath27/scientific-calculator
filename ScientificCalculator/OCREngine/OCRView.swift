@@ -62,17 +62,36 @@ struct OCRView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            // Image Preview
-            if let image = viewModel.selectedImage {
-                GroupBox("Image Preview") {
-                    Image(nsImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxHeight: 150)
+            // Image Preview (with drag-and-drop)
+            Group {
+                if let image = viewModel.selectedImage {
+                    GroupBox("Image Preview") {
+                        Image(nsImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 150)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.white)
+                            .cornerRadius(4)
+                    }
+                } else {
+                    // Drop zone when no image is loaded
+                    GroupBox("Drop Equation Image Here") {
+                        VStack(spacing: 8) {
+                            Image(systemName: "photo.on.rectangle.angled")
+                                .font(.system(size: 32))
+                                .foregroundColor(.secondary)
+                            Text("Drag and drop an image or PDF")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                         .frame(maxWidth: .infinity)
-                        .background(Color.white)
-                        .cornerRadius(4)
+                        .frame(height: 100)
+                    }
                 }
+            }
+            .onDrop(of: [.png, .jpeg, .tiff, .pdf, .fileURL], isTargeted: nil) { providers in
+                handleDrop(providers: providers)
             }
             
             // Status / Loading
@@ -84,6 +103,24 @@ struct OCRView: View {
                     Text("Recognizing equation...")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                }
+                
+            case .verifying:
+                HStack {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                    Text("Verifying identity...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+            case .verified(let isValid):
+                HStack {
+                    Image(systemName: isValid ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundColor(isValid ? .green : .red)
+                    Text(isValid ? "Identity verified" : "Identity does not hold")
+                        .font(.caption)
+                        .foregroundColor(isValid ? .green : .red)
                 }
                 
             case .error(let message):
@@ -148,6 +185,11 @@ struct OCRView: View {
                     }
                     .keyboardShortcut(.return, modifiers: [])
                     
+                    Button("Verify Identity") {
+                        viewModel.verifyCurrentExpression()
+                    }
+                    .help("Check if the expression is a valid identity (simplifies to 0)")
+                    
                     Button("Copy Expression") {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(viewModel.recognizedExpression, forType: .string)
@@ -180,6 +222,47 @@ struct OCRView: View {
         if viewModel.confidenceScore >= 0.8 { return .green }
         if viewModel.confidenceScore >= 0.5 { return .orange }
         return .red
+    }
+    
+    // MARK: - Drag and Drop
+    
+    private func handleDrop(providers: [NSItemProvider]) -> Bool {
+        // Try to load a file URL first (covers all file types)
+        for provider in providers {
+            if provider.hasItemConformingToTypeIdentifier("public.file-url") {
+                provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, _ in
+                    guard let data = item as? Data,
+                          let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
+                    
+                    let ext = url.pathExtension.lowercased()
+                    guard ["png", "jpg", "jpeg", "tiff", "tif", "pdf"].contains(ext) else { return }
+                    
+                    DispatchQueue.main.async {
+                        if let imageData = OCRPreprocessor.loadFromFile(url) {
+                            viewModel.selectedImage = NSImage(contentsOf: url) ?? NSImage(data: imageData)
+                            viewModel.recognizeCurrentImage()
+                        }
+                    }
+                }
+                return true
+            }
+        }
+        
+        // Try to load raw image data
+        for provider in providers {
+            if provider.canLoadObject(ofClass: NSImage.self) {
+                provider.loadObject(ofClass: NSImage.self) { image, _ in
+                    guard let nsImage = image as? NSImage else { return }
+                    DispatchQueue.main.async {
+                        viewModel.selectedImage = nsImage
+                        viewModel.recognizeCurrentImage()
+                    }
+                }
+                return true
+            }
+        }
+        
+        return false
     }
 }
 

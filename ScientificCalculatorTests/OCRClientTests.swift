@@ -67,13 +67,17 @@ final class OCRClientTests: XCTestCase {
             expression: "x^2 + 1",
             latex: "x^{2} + 1",
             confidence: 0.92,
-            processingTimeMs: 150.5
+            processingTimeMs: 150.5,
+            canonicalExpression: "x**2 + 1",
+            validated: true
         )
         
         XCTAssertEqual(result.expression, "x^2 + 1")
         XCTAssertEqual(result.latex, "x^{2} + 1")
         XCTAssertEqual(result.confidence, 0.92, accuracy: 0.001)
         XCTAssertEqual(result.processingTimeMs, 150.5, accuracy: 0.1)
+        XCTAssertEqual(result.canonicalExpression, "x**2 + 1")
+        XCTAssertTrue(result.validated)
     }
     
     // MARK: - OCR Metrics

@@ -112,6 +112,12 @@ struct Parser {
             return .constant(constant, position: token.position)
             
         case .variable(let name):
+            // Check for symbolic function call: variable followed by '('
+            // Look ahead without consuming (using nextToken computed property trick or just peek)
+            if current + 1 < tokens.count, case .leftParen = tokens[current + 1].token {
+                return try parseSymbolicFunction(name: name, startPosition: token.position)
+            }
+            
             _ = advance()
             return .variable(name, position: token.position)
             
@@ -172,6 +178,39 @@ struct Parser {
         return .function(name: function, argument: argument, position: combinedPos)
     }
     
+    /// Parse symbolic function call: name(arg1, arg2, ...)
+    private mutating func parseSymbolicFunction(name: String, startPosition: SourcePosition) throws -> Node {
+        _ = advance()  // consume variable name
+        _ = advance()  // consume '('
+        
+        var arguments: [Node] = []
+        
+        if case .rightParen = currentToken.token {
+            // Empty arguments
+        } else {
+            // Parse first argument
+            arguments.append(try parseExpression(precedence: 0))
+            
+            // Parse subsequent arguments
+            while case .comma = currentToken.token {
+                _ = advance() // consume comma
+                arguments.append(try parseExpression(precedence: 0))
+            }
+        }
+        
+        guard case .rightParen = currentToken.token else {
+            throw ParserError.unmatchedParenthesis(position: startPosition.offset)
+        }
+        let endToken = advance()  // consume ')'
+        
+        let combinedPos = SourcePosition(
+            offset: startPosition.offset,
+            length: (endToken.position.offset + 1) - startPosition.offset
+        )
+        
+        return .symbolicFunction(name: name, arguments: arguments, position: combinedPos)
+    }
+    
     /// Parse parenthesized expression
     private mutating func parseGroupedExpression(startPosition: SourcePosition) throws -> Node {
         _ = advance()  // consume '('
@@ -222,6 +261,7 @@ struct Parser {
         case .function(let f): return "function '\(f.rawValue)'"
         case .constant(let c): return "constant '\(c.rawValue)'"
         case .variable(let v): return "variable '\(v)'"
+        case .comma: return "','"
         case .eof: return "end of input"
         }
     }

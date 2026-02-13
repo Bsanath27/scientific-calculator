@@ -26,6 +26,11 @@ struct ASTToSympyConverter {
         case .variable(let name, _):
             return name
             
+        case .symbolicFunction(let name, let args, _):
+            let argStrings = args.map { convert($0) }
+            // Use explicit Function syntax to avoid ambiguity with Symbol * Tuple
+            return "Function('\(name)')(\(argStrings.joined(separator: ", ")))"
+            
         case .unary(let op, let operand, _):
             return convertUnary(op: op, operand: operand)
             

@@ -16,11 +16,23 @@ struct EvaluationContext {
     }
 }
 
+/// Structured issues that can be attached to an evaluation error.
+/// This allows higher-level components (like the dispatcher) to make
+/// decisions based on error type instead of fragile string matching.
+enum EvaluationIssue: Equatable {
+    case divisionByZero
+    case overflow
+    case domainError
+    case cannotEvaluateEquality
+    case undefinedVariable
+    case symbolicComputationRequired
+}
+
 /// Result of an evaluation
 enum EvaluationResult: Equatable {
     case number(Double)
     case symbolic(String, latex: String, metadata: [String: Double]?)
-    case error(String)
+    case error(String, issue: EvaluationIssue? = nil)
     case notImplemented(String)
     
     var isSuccess: Bool {
@@ -46,7 +58,7 @@ enum EvaluationResult: Equatable {
     
     var errorMessage: String? {
         switch self {
-        case .error(let msg): return msg
+        case .error(let msg, _): return msg
         case .notImplemented(let msg): return msg
         default: return nil
         }

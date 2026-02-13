@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C98D1BC42F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC32F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift */; };
+		A000000000000090 /* PythonServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000090 /* PythonServiceManager.swift */; };
+		A000000000000091 /* NLUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000091 /* NLUTests.swift */; };
 		A000000000000001 /* ScientificCalculatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000001 /* ScientificCalculatorApp.swift */; };
 		A000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000002 /* ContentView.swift */; };
 		A000000000000003 /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000003 /* CalculatorViewModel.swift */; };
@@ -54,6 +57,10 @@
 		A000000000000055 /* OCRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000055 /* OCRView.swift */; };
 		A000000000000060 /* LatexNormalizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000060 /* LatexNormalizerTests.swift */; };
 		A000000000000061 /* OCRClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000061 /* OCRClientTests.swift */; };
+		C98D1BBF2F3F0E4D00966AE1 /* QuickSolverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBD2F3F0E4D00966AE1 /* QuickSolverView.swift */; };
+		C98D1BC02F3F0E4D00966AE1 /* NLTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBC2F3F0E4D00966AE1 /* NLTranslator.swift */; };
+		C98D1BC12F3F0E4D00966AE1 /* AssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBA2F3F0E4D00966AE1 /* AssistantView.swift */; };
+		C98D1BC22F3F0E4D00966AE1 /* AssistantViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +74,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C98D1BC32F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLSyntaxAnalyzer.swift; sourceTree = "<group>"; };
+		A100000000000090 /* PythonServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythonServiceManager.swift; sourceTree = "<group>"; };
+		A100000000000091 /* NLUTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLUTests.swift; sourceTree = "<group>"; };
 		A100000000000001 /* ScientificCalculatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScientificCalculatorApp.swift; sourceTree = "<group>"; };
 		A100000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A100000000000003 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
@@ -116,6 +126,10 @@
 		A100000000000061 /* OCRClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRClientTests.swift; sourceTree = "<group>"; };
 		A500000000000001 /* ScientificCalculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScientificCalculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A500000000000002 /* ScientificCalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScientificCalculatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C98D1BBA2F3F0E4D00966AE1 /* AssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantView.swift; sourceTree = "<group>"; };
+		C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantViewModel.swift; sourceTree = "<group>"; };
+		C98D1BBC2F3F0E4D00966AE1 /* NLTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLTranslator.swift; sourceTree = "<group>"; };
+		C98D1BBD2F3F0E4D00966AE1 /* QuickSolverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSolverView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +162,7 @@
 		A700000000000002 /* ScientificCalculator */ = {
 			isa = PBXGroup;
 			children = (
+				C98D1BBE2F3F0E4D00966AE1 /* Assistant */,
 				A700000000000005 /* App */,
 				A700000000000006 /* UI */,
 				A700000000000007 /* AST */,
@@ -167,6 +182,7 @@
 		A700000000000003 /* ScientificCalculatorTests */ = {
 			isa = PBXGroup;
 			children = (
+				A100000000000091 /* NLUTests.swift */,
 				A100000000000020 /* TokenizerTests.swift */,
 				A100000000000021 /* ParserTests.swift */,
 				A100000000000022 /* NumericEngineTests.swift */,
@@ -268,6 +284,7 @@
 		A70000000000000D /* PythonBridge */ = {
 			isa = PBXGroup;
 			children = (
+				A100000000000090 /* PythonServiceManager.swift */,
 				A100000000000013 /* PythonClient.swift */,
 			);
 			path = PythonBridge;
@@ -309,6 +326,18 @@
 				A100000000000055 /* OCRView.swift */,
 			);
 			path = OCREngine;
+			sourceTree = "<group>";
+		};
+		C98D1BBE2F3F0E4D00966AE1 /* Assistant */ = {
+			isa = PBXGroup;
+			children = (
+				C98D1BC32F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift */,
+				C98D1BBA2F3F0E4D00966AE1 /* AssistantView.swift */,
+				C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */,
+				C98D1BBC2F3F0E4D00966AE1 /* NLTranslator.swift */,
+				C98D1BBD2F3F0E4D00966AE1 /* QuickSolverView.swift */,
+			);
+			path = Assistant;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -390,10 +419,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C98D1BC42F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift in Sources */,
+				A000000000000090 /* PythonServiceManager.swift in Sources */,
 				A000000000000001 /* ScientificCalculatorApp.swift in Sources */,
 				A000000000000002 /* ContentView.swift in Sources */,
 				A000000000000003 /* CalculatorViewModel.swift in Sources */,
 				A000000000000004 /* Node.swift in Sources */,
+				C98D1BBF2F3F0E4D00966AE1 /* QuickSolverView.swift in Sources */,
+				C98D1BC02F3F0E4D00966AE1 /* NLTranslator.swift in Sources */,
+				C98D1BC12F3F0E4D00966AE1 /* AssistantView.swift in Sources */,
+				C98D1BC22F3F0E4D00966AE1 /* AssistantViewModel.swift in Sources */,
 				A000000000000005 /* Operators.swift in Sources */,
 				A000000000000006 /* Token.swift in Sources */,
 				A000000000000007 /* Tokenizer.swift in Sources */,
@@ -434,6 +469,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A000000000000091 /* NLUTests.swift in Sources */,
 				A000000000000020 /* TokenizerTests.swift in Sources */,
 				A000000000000021 /* ParserTests.swift in Sources */,
 				A000000000000022 /* NumericEngineTests.swift in Sources */,
@@ -599,6 +635,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -628,6 +665,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

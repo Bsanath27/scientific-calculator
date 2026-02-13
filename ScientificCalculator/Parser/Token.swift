@@ -9,6 +9,7 @@ enum Token: Equatable {
     case binaryOperator(BinaryOperator)
     case leftParen
     case rightParen
+    case comma
     case function(MathFunction)
     case constant(MathConstant)
     case variable(String)

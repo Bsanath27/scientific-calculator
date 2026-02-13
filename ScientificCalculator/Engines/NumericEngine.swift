@@ -15,9 +15,24 @@ final class NumericEngine: MathEngine {
             let result = try evaluateNode(ast, bindings: context.variableBindings)
             return .number(result)
         } catch let error as EvaluationError {
-            return .error(error.message)
+            let issue: EvaluationIssue?
+            switch error {
+            case .divisionByZero:
+                issue = .divisionByZero
+            case .overflow:
+                issue = .overflow
+            case .undefinedVariable:
+                issue = .undefinedVariable
+            case .cannotEvaluateEquality:
+                issue = .cannotEvaluateEquality
+            case .domainError:
+                issue = .domainError
+            case .symbolicComputationRequired:
+                issue = .symbolicComputationRequired
+            }
+            return .error(error.message, issue: issue)
         } catch {
-            return .error("Unknown evaluation error: \(error)")
+            return .error("Unknown evaluation error: \(error)", issue: nil)
         }
     }
     
@@ -33,9 +48,14 @@ final class NumericEngine: MathEngine {
             
         case .variable(let name, _):
             guard let value = bindings[name] else {
-                throw EvaluationError.domainError("Undefined variable: \(name)")
+                throw EvaluationError.undefinedVariable(name)
             }
             return value
+            
+        case .symbolicFunction(let name, _, _):
+            // Cannot evaluate symbolic functions like chi() numerically
+            // unless we have a binding for the function itself (which we don't support yet)
+            throw EvaluationError.symbolicComputationRequired("Function '\(name)' is not supported in numeric mode")
             
         case .unary(let op, let operand, _):
             let value = try evaluateNode(operand, bindings: bindings)
@@ -84,7 +104,7 @@ final class NumericEngine: MathEngine {
             return result
             
         case .equals:
-            throw EvaluationError.domainError("Cannot evaluate equality numerically")
+            throw EvaluationError.cannotEvaluateEquality
         }
     }
     
@@ -129,6 +149,9 @@ enum EvaluationError: Error {
     case divisionByZero
     case overflow
     case domainError(String)
+    case cannotEvaluateEquality
+    case undefinedVariable(String)
+    case symbolicComputationRequired(String)
     
     var message: String {
         switch self {
@@ -138,6 +161,12 @@ enum EvaluationError: Error {
             return "Numeric overflow"
         case .domainError(let msg):
             return msg
+        case .cannotEvaluateEquality:
+            return "Cannot evaluate equality numerically"
+        case .undefinedVariable(let name):
+            return "Undefined variable: \(name)"
+        case .symbolicComputationRequired(let msg):
+            return "Symbolic computation required: \(msg)"
         }
     }
 }
