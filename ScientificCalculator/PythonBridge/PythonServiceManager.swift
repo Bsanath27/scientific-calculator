@@ -13,7 +13,7 @@ final class PythonServiceManager: ObservableObject {
     @Published var isRunning = false
     @Published var serviceOutput = ""
     
-    private let port = 5001
+    private let port = 8001
     
     // Dev path fallback since files might not be in Bundle during dev
     private let devScriptPath = "/Users/sanathbs/03_Dev_Lab/scientific-calculator/PythonBridge/SympyService.py"
@@ -43,11 +43,11 @@ final class PythonServiceManager: ObservableObject {
             return
         }
         
-        print("PythonServiceManager: Starting service at \(scriptPath)")
+        print("PythonServiceManager: Starting service at \(scriptPath) on port \(port)")
         
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/python3") // Use system python or bundled
-        process.arguments = [scriptPath]
+        process.arguments = [scriptPath, "--port", "\(port)"]
         
         // 2. Set Environment Variables
         // Important: When running in Xcode (even Sandbox), we need to help it find user-installed packages

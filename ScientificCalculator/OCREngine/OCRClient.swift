@@ -57,7 +57,7 @@ enum OCRClientError: Error, LocalizedError {
 class OCRClient {
     /// Default base URL for local OCR service.
     private static let defaultBaseURL: URL = {
-        guard let url = URL(string: "http://127.0.0.1:5002") else {
+        guard let url = URL(string: "http://127.0.0.1:3001") else {
             fatalError("Invalid default OCR service URL")
         }
         return url
@@ -164,13 +164,14 @@ class OCRClient {
     /// - Parameter expression: The equation expression (e.g. "sin(x)^2 + cos(x)^2 - 1")
     /// - Returns: True if the identity holds (simplifies to 0)
     func verifyEquation(expression: String) async throws -> Bool {
-        // Use SymPy service for verification (port 5001)
-        guard let verifyURL = URL(string: "http://127.0.0.1:5001/verify") else {
+        // Use SymPy service for verification (port 8001)
+        guard let verifyURL = URL(string: "http://127.0.0.1:8001/verify") else {
             throw OCRClientError.invalidURL
         }
         
         // Prepare request
         var request = URLRequest(url: verifyURL)
+
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = timeout

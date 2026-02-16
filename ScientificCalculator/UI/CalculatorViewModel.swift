@@ -167,7 +167,7 @@ final class CalculatorViewModel: ObservableObject {
 }
 
 /// History entry model
-struct HistoryEntry: Identifiable, Equatable {
+struct HistoryEntry: Identifiable, Equatable, Codable {
     let id = UUID()
     let expression: String
     let result: String

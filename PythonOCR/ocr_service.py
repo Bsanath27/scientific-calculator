@@ -422,6 +422,11 @@ def error_response(message: str, status_code: int = 400):
 
 
 if __name__ == '__main__':
-    print("Starting OCR Service on port 5002...")
+    import argparse
+    parser = argparse.ArgumentParser(description='OCR Service')
+    parser.add_argument('--port', type=int, default=3001, help='Port to run the service on')
+    args = parser.parse_args()
+
+    print(f"Starting OCR Service on port {args.port}...")
     print("Model will be loaded on first request (lazy loading)")
-    app.run(host='127.0.0.1', port=5002, debug=False)
+    app.run(host='127.0.0.1', port=args.port, debug=False)

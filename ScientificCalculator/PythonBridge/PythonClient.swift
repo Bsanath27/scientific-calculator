@@ -44,7 +44,7 @@ class PythonClient {
     /// string is ever invalid, we fail fast at startup rather than crashing on
     /// user input later.
     private static let defaultBaseURL: URL = {
-        guard let url = URL(string: "http://127.0.0.1:5001") else {
+        guard let url = URL(string: "http://127.0.0.1:8001") else {
             fatalError("Invalid default Python service URL")
         }
         return url

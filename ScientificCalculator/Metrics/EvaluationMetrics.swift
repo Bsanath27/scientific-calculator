@@ -4,7 +4,7 @@
 import Foundation
 
 /// Performance metrics for a single evaluation
-struct EvaluationMetrics: Equatable {
+struct EvaluationMetrics: Equatable, Codable {
     /// Time spent parsing (milliseconds)
     let parseTimeMs: Double
     

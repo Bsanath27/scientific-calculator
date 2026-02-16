@@ -218,8 +218,13 @@ def verify_endpoint():
         return error_response(f"Internal error: {str(e)}", 500)
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='SymPy Service')
+    parser.add_argument('--port', type=int, default=8001, help='Port to run the service on')
+    args = parser.parse_args()
+
     print("=" * 50)
-    print("SymPy Service Starting")
+    print(f"SymPy Service Starting on port {args.port}")
     print("=" * 50)
     print("Endpoints:")
     print("  GET  /health")
@@ -231,4 +236,4 @@ if __name__ == '__main__':
     print("  POST /verify")
     print("=" * 50)
     
-    app.run(host='127.0.0.1', port=5001, debug=False)
+    app.run(host='127.0.0.1', port=args.port, debug=False)
