@@ -61,6 +61,20 @@
 		C98D1BC02F3F0E4D00966AE1 /* NLTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBC2F3F0E4D00966AE1 /* NLTranslator.swift */; };
 		C98D1BC12F3F0E4D00966AE1 /* AssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBA2F3F0E4D00966AE1 /* AssistantView.swift */; };
 		C98D1BC22F3F0E4D00966AE1 /* AssistantViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */; };
+		C98D1BC52F3F0E4D00966AE2 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC52F3F0E4D00966AE1 /* ThemeManager.swift */; };
+		C98D1BC62F3F0E4D00966AE2 /* CalculatorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC62F3F0E4D00966AE1 /* CalculatorButton.swift */; };
+		C98D1BC72F3F0E4D00966AE2 /* ScientificKeypad.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC72F3F0E4D00966AE1 /* ScientificKeypad.swift */; };
+		C98D1BC82F3F0E4D00966AE2 /* BasicKeypad.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC82F3F0E4D00966AE1 /* BasicKeypad.swift */; };
+		CD48B5AE4EFB42B98338C4E6 /* NotebookModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B4FA92CA9A4E60810AC85E /* NotebookModel.swift */; };
+		C4DB53446808439C8644B399 /* NotebookViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EE797DCFEE498D9D1A656E /* NotebookViewModel.swift */; };
+		F6B5A98C681941B98C5B68B0 /* BlockViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256244F11E934557A71ECF25 /* BlockViews.swift */; };
+		115DA8E70D1645D5A703C9D4 /* InputActionBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9141CECF744E4BB9955190C8 /* InputActionBar.swift */; };
+		B74A378CE1A24D049E8995B7 /* NotebookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E211F88AD59346D5A7B84B75 /* NotebookView.swift */; };
+		E05BDE99679D4B14A47826FC /* AppNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC076C649A643F6A2697F97 /* AppNavigationView.swift */; };
+		DA58000100000002 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000100000001 /* DashboardView.swift */; };
+		DA58000200000002 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000200000001 /* DashboardViewModel.swift */; };
+		DA58000300000002 /* DashboardPlotCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000300000001 /* DashboardPlotCard.swift */; };
+		DA58000400000002 /* DashboardConstantsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000400000001 /* DashboardConstantsCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +144,20 @@
 		C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantViewModel.swift; sourceTree = "<group>"; };
 		C98D1BBC2F3F0E4D00966AE1 /* NLTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLTranslator.swift; sourceTree = "<group>"; };
 		C98D1BBD2F3F0E4D00966AE1 /* QuickSolverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSolverView.swift; sourceTree = "<group>"; };
+		C98D1BC52F3F0E4D00966AE1 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		C98D1BC62F3F0E4D00966AE1 /* CalculatorButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorButton.swift; sourceTree = "<group>"; };
+		C98D1BC72F3F0E4D00966AE1 /* ScientificKeypad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScientificKeypad.swift; sourceTree = "<group>"; };
+		C98D1BC82F3F0E4D00966AE1 /* BasicKeypad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicKeypad.swift; sourceTree = "<group>"; };
+		26B4FA92CA9A4E60810AC85E /* NotebookModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookModel.swift; sourceTree = "<group>"; };
+		49EE797DCFEE498D9D1A656E /* NotebookViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookViewModel.swift; sourceTree = "<group>"; };
+		256244F11E934557A71ECF25 /* BlockViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockViews.swift; sourceTree = "<group>"; };
+		9141CECF744E4BB9955190C8 /* InputActionBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputActionBar.swift; sourceTree = "<group>"; };
+		E211F88AD59346D5A7B84B75 /* NotebookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookView.swift; sourceTree = "<group>"; };
+		7AC076C649A643F6A2697F97 /* AppNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation/AppNavigationView.swift; sourceTree = "<group>"; };
+		DA58000100000001 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		DA58000200000001 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		DA58000300000001 /* DashboardPlotCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardPlotCard.swift; sourceTree = "<group>"; };
+		DA58000400000001 /* DashboardConstantsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardConstantsCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -217,6 +245,12 @@
 		A700000000000006 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				7AC076C649A643F6A2697F97 /* AppNavigationView.swift */,
+				DA580000B76B444F87D1A877 /* Dashboard */,
+				14B4F777B76B444F87D1A877 /* Notebook */,
+				C98D1BC92F3F0E4D00966AE1 /* Theme */,
+				C98D1BCA2F3F0E4D00966AE1 /* Components */,
+				C98D1BCB2F3F0E4D00966AE1 /* Keypad */,
 				A100000000000002 /* ContentView.swift */,
 				A100000000000003 /* CalculatorViewModel.swift */,
 			);
@@ -340,6 +374,54 @@
 			path = Assistant;
 			sourceTree = "<group>";
 		};
+		C98D1BC92F3F0E4D00966AE1 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				C98D1BC52F3F0E4D00966AE1 /* ThemeManager.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		C98D1BCA2F3F0E4D00966AE1 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C98D1BC62F3F0E4D00966AE1 /* CalculatorButton.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C98D1BCB2F3F0E4D00966AE1 /* Keypad */ = {
+			isa = PBXGroup;
+			children = (
+				C98D1BC72F3F0E4D00966AE1 /* ScientificKeypad.swift */,
+				C98D1BC82F3F0E4D00966AE1 /* BasicKeypad.swift */,
+			);
+			path = Keypad;
+			sourceTree = "<group>";
+		};
+		14B4F777B76B444F87D1A877 /* Notebook */ = {
+			isa = PBXGroup;
+			children = (
+				26B4FA92CA9A4E60810AC85E /* NotebookModel.swift */,
+				49EE797DCFEE498D9D1A656E /* NotebookViewModel.swift */,
+				256244F11E934557A71ECF25 /* BlockViews.swift */,
+				9141CECF744E4BB9955190C8 /* InputActionBar.swift */,
+				E211F88AD59346D5A7B84B75 /* NotebookView.swift */
+			);
+			path = Notebook;
+			sourceTree = "<group>";
+		};
+		DA580000B76B444F87D1A877 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				DA58000100000001 /* DashboardView.swift */,
+				DA58000200000001 /* DashboardViewModel.swift */,
+				DA58000300000001 /* DashboardPlotCard.swift */,
+				DA58000400000001 /* DashboardConstantsCard.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -419,6 +501,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA58000100000002 /* DashboardView.swift in Sources */,
+				DA58000200000002 /* DashboardViewModel.swift in Sources */,
+				DA58000300000002 /* DashboardPlotCard.swift in Sources */,
+				DA58000400000002 /* DashboardConstantsCard.swift in Sources */,
+				E05BDE99679D4B14A47826FC /* AppNavigationView.swift in Sources */,
+				CD48B5AE4EFB42B98338C4E6 /* NotebookModel.swift in Sources */,
+				C4DB53446808439C8644B399 /* NotebookViewModel.swift in Sources */,
+				F6B5A98C681941B98C5B68B0 /* BlockViews.swift in Sources */,
+				115DA8E70D1645D5A703C9D4 /* InputActionBar.swift in Sources */,
+				B74A378CE1A24D049E8995B7 /* NotebookView.swift in Sources */,
+				C98D1BC52F3F0E4D00966AE2 /* ThemeManager.swift in Sources */,
+				C98D1BC62F3F0E4D00966AE2 /* CalculatorButton.swift in Sources */,
+				C98D1BC72F3F0E4D00966AE2 /* ScientificKeypad.swift in Sources */,
+				C98D1BC82F3F0E4D00966AE2 /* BasicKeypad.swift in Sources */,
 				C98D1BC42F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift in Sources */,
 				A000000000000090 /* PythonServiceManager.swift in Sources */,
 				A000000000000001 /* ScientificCalculatorApp.swift in Sources */,
@@ -624,10 +720,11 @@
 		B100000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ScientificCalculator/ScientificCalculator.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -654,10 +751,11 @@
 		B100000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ScientificCalculator/ScientificCalculator.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -685,7 +783,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -703,7 +801,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;

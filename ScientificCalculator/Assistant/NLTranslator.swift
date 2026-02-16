@@ -42,7 +42,7 @@ struct NLTranslator {
         let text = NLSyntaxAnalyzer.standardize(spellChecked)
         
         // 3. Normalization (lowercasing done in standardize, trimming here just in case)
-        let inputToProcess = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        // inputToProcess removed as it was unused
         
         // Empty input
         guard !text.isEmpty else {

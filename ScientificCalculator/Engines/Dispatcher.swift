@@ -27,8 +27,8 @@ final class Dispatcher {
         }
     }
     
-    /// Evaluate expression string with full metrics
-    func evaluate(expression: String) -> EvaluationReport {
+    /// Evaluate expression string with full metrics and optional context
+    func evaluate(expression: String, context: EvaluationContext = .empty) -> EvaluationReport {
         let startTime = CFAbsoluteTimeGetCurrent()
         let startMemory = MetricsCollector.currentMemoryKB()
         
@@ -59,7 +59,7 @@ final class Dispatcher {
         case .success(let ast):
             // Evaluation phase
             let evalStart = CFAbsoluteTimeGetCurrent()
-            var result = currentEngine.evaluate(ast: ast, context: .empty)
+            var result = currentEngine.evaluate(ast: ast, context: context)
             
             // Fallback to Symbolic Engine for equations or undefined variables,
             // based on structured error issues rather than fragile string matching.
@@ -68,7 +68,7 @@ final class Dispatcher {
                     #if DEBUG
                     print("Dispatcher: Numeric evaluation failed ('\(msg)'). Switching to Symbolic Engine.")
                     #endif
-                    result = symbolicEngine.evaluate(ast: ast, context: .empty)
+                    result = symbolicEngine.evaluate(ast: ast, context: context)
                 }
             }
             let evalEnd = CFAbsoluteTimeGetCurrent()

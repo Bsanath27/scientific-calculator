@@ -10,7 +10,7 @@ struct ScientificCalculatorApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppNavigationView()
         }
         .windowStyle(.automatic)
         .defaultSize(width: 600, height: 700)

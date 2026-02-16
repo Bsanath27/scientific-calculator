@@ -12,25 +12,60 @@ struct LatexFormatter {
     static func format(_ latex: String) -> String {
         var result = latex
         
-        // Replace common LaTeX symbols with Unicode
-        result = result.replacingOccurrences(of: "\\pi", with: "π")
-        result = result.replacingOccurrences(of: "\\infty", with: "∞")
-        result = result.replacingOccurrences(of: "\\sqrt", with: "√")
-        result = result.replacingOccurrences(of: "\\pm", with: "±")
-        result = result.replacingOccurrences(of: "\\times", with: "×")
-        result = result.replacingOccurrences(of: "\\div", with: "÷")
+        // Replacement mapping
+        let replacements: [String: String] = [
+            "\\pi": "π",
+            "\\infty": "∞",
+            "\\sqrt": "√",
+            "\\pm": "±",
+            "\\times": "×",
+            "\\div": "÷",
+            "\\cdot": "·",
+            "\\alpha": "α",
+            "\\beta": "β",
+            "\\gamma": "γ",
+            "\\delta": "δ",
+            "\\theta": "θ",
+            "\\lambda": "λ",
+            "\\mu": "μ",
+            "\\sigma": "σ",
+            "\\phi": "φ",
+            "\\omega": "ω",
+            "\\Delta": "Δ",
+            "\\Sigma": "Σ",
+            "\\Omega": "Ω",
+            "\\approx": "≈",
+            "\\neq": "≠",
+            "\\leq": "≤",
+            "\\geq": "≥",
+            "\\rightarrow": "→",
+            "\\forall": "∀",
+            "\\exists": "∃",
+            "\\in": "∈"
+        ]
         
-        // Simple fraction handling (for basic cases)
+        for (key, value) in replacements {
+            result = result.replacingOccurrences(of: key, with: value)
+        }
+        
+        // Handle superscripts (simple case: ^2, ^3)
+        result = result.replacingOccurrences(of: "^2", with: "²")
+        result = result.replacingOccurrences(of: "^3", with: "³")
+        result = result.replacingOccurrences(of: "^{2}", with: "²")
+        result = result.replacingOccurrences(of: "^{3}", with: "³")
+        
+        // Simple fraction handling
         result = simplifyFractions(result)
         
-        // Remove unnecessary braces
-        result = result.replacingOccurrences(of: "{", with: "")
-        result = result.replacingOccurrences(of: "}", with: "")
+        // Remove remaining braces but keep structure
+        result = result.replacingOccurrences(of: "{", with: "(")
+        result = result.replacingOccurrences(of: "}", with: ")")
         
-        // Clean up whitespace
-        result = result.trimmingCharacters(in: .whitespaces)
+        // Clean up unnecessary parentheses
+        result = result.replacingOccurrences(of: "( ", with: "(")
+        result = result.replacingOccurrences(of: " )", with: ")")
         
-        return result
+        return result.trimmingCharacters(in: .whitespaces)
     }
     
     /// Convert to plain text (removes LaTeX commands entirely)

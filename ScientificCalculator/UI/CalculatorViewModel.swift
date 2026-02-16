@@ -16,6 +16,60 @@ final class CalculatorViewModel: ObservableObject {
         }
     }
     @Published var result: String = ""
+    
+    // MARK: - Input Handling
+    
+    /// Append input with validation (prevent multiple operators, invalid decimals)
+    func handleInput(_ key: String) {
+        // 1. Clear "Error" state on new input
+        if result.starts(with: "Error") {
+            result = ""
+        }
+        
+        let operators = ["+", "-", "*", "/", "^"]
+        let lastChar = expression.last.map(String.init) ?? ""
+        
+        // 2. Operator Replacement Logic
+        if operators.contains(key) {
+            if expression.isEmpty {
+                // Allow minus at start for negative numbers
+                if key == "-" {
+                    expression += key
+                }
+                // Else ignore leading operators
+                return
+            }
+            
+            if operators.contains(lastChar) {
+                // Replace last operator
+                expression.removeLast()
+                expression += key
+                return
+            }
+        }
+        
+        // 3. Decimal Logic
+        if key == "." {
+            // Get current number segment (traverse back until operator)
+            var currentNumber = ""
+            for char in expression.reversed() {
+                let s = String(char)
+                if operators.contains(s) { break }
+                currentNumber = s + currentNumber
+            }
+            
+            if currentNumber.contains(".") {
+                return // Ignore double decimals
+            }
+            
+            if currentNumber.isEmpty {
+                expression += "0" // "0." for naked decimal
+            }
+        }
+        
+        // 4. Default Append
+        expression += key
+    }
     @Published var metricsText: String = ""
     @Published var history: [HistoryEntry] = []
     @Published var isRunningBenchmark: Bool = false
