@@ -151,8 +151,17 @@ struct Parser {
     }
     
     /// Parse function call: name(argument)
+    /// Also handles shorthand: cos^2(x) → (cos(x))^2
     private mutating func parseFunction(_ function: MathFunction, startPosition: SourcePosition) throws -> Node {
         _ = advance()  // consume function name
+        
+        // Handle shorthand: func^exponent(arg) → (func(arg))^exponent
+        // e.g. cos^2(x) → (cos(x))^2, tan^-1(x) → (tan(x))^(-1)
+        var exponent: Node? = nil
+        if case .binaryOperator(.power) = currentToken.token {
+            _ = advance()  // consume ^
+            exponent = try parsePrefix()  // parse exponent (number, grouped expr, or unary)
+        }
         
         guard case .leftParen = currentToken.token else {
             throw ParserError.unexpectedToken(
@@ -175,7 +184,18 @@ struct Parser {
             length: (endToken.position.offset + 1) - startPosition.offset
         )
         
-        return .function(name: function, argument: argument, position: combinedPos)
+        var result: Node = .function(name: function, argument: argument, position: combinedPos)
+        
+        // Wrap in power node if shorthand was used
+        if let exp = exponent {
+            let powerPos = SourcePosition(
+                offset: startPosition.offset,
+                length: (endToken.position.offset + 1) - startPosition.offset
+            )
+            result = .binary(left: result, op: .power, right: exp, position: powerPos)
+        }
+        
+        return result
     }
     
     /// Parse symbolic function call: name(arg1, arg2, ...)

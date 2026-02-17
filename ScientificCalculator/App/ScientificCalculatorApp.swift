@@ -37,6 +37,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         print("App: Launching Python Service...")
         PythonServiceManager.shared.startService()
+        
+        print("App: Starting Local API Server...")
+        LocalAPIServer.shared.start()
     }
     
     func applicationWillTerminate(_ notification: Notification) {

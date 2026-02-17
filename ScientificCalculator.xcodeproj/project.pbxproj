@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C98D1BCF2F3F0E4D00966AE1 /* LocalAPIServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BCE2F3F0E4D00966AE1 /* LocalAPIServer.swift */; };
+		C98D1BCD2F3F0E4D00966AE1 /* AssistantMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BCC2F3F0E4D00966AE1 /* AssistantMetrics.swift */; };
 		C98D1BC42F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC32F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift */; };
 		A000000000000090 /* PythonServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000090 /* PythonServiceManager.swift */; };
 		A000000000000091 /* NLUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000091 /* NLUTests.swift */; };
@@ -75,6 +77,13 @@
 		DA58000200000002 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000200000001 /* DashboardViewModel.swift */; };
 		DA58000300000002 /* DashboardPlotCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000300000001 /* DashboardPlotCard.swift */; };
 		DA58000400000002 /* DashboardConstantsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000400000001 /* DashboardConstantsCard.swift */; };
+		DA58000500000002 /* ExpressionInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000500000001 /* ExpressionInputView.swift */; };
+		DA58000600000002 /* VariablesPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000600000001 /* VariablesPanel.swift */; };
+		DA58000700000002 /* PhysicsReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000700000001 /* PhysicsReference.swift */; };
+		DA58000800000002 /* VariableStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000800000001 /* VariableStore.swift */; };
+				DA58000900000002 /* RefactorVerificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000900000001 /* RefactorVerificationTests.swift */; };
+		DA58000A00000002 /* SyntaxValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000A00000001 /* SyntaxValidator.swift */; };
+		DA58000B00000002 /* DashboardUnitConverterCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA58000B00000001 /* DashboardUnitConverterCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,6 +150,8 @@
 		A500000000000001 /* ScientificCalculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScientificCalculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A500000000000002 /* ScientificCalculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScientificCalculatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C98D1BBA2F3F0E4D00966AE1 /* AssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantView.swift; sourceTree = "<group>"; };
+		C98D1BCC2F3F0E4D00966AE1 /* AssistantMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantMetrics.swift; sourceTree = "<group>"; };
+		C98D1BCE2F3F0E4D00966AE1 /* LocalAPIServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAPIServer.swift; sourceTree = "<group>"; };
 		C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantViewModel.swift; sourceTree = "<group>"; };
 		C98D1BBC2F3F0E4D00966AE1 /* NLTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLTranslator.swift; sourceTree = "<group>"; };
 		C98D1BBD2F3F0E4D00966AE1 /* QuickSolverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSolverView.swift; sourceTree = "<group>"; };
@@ -158,6 +169,12 @@
 		DA58000200000001 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		DA58000300000001 /* DashboardPlotCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardPlotCard.swift; sourceTree = "<group>"; };
 		DA58000400000001 /* DashboardConstantsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardConstantsCard.swift; sourceTree = "<group>"; };
+		DA58000500000001 /* ExpressionInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressionInputView.swift; sourceTree = "<group>"; };
+		DA58000600000001 /* VariablesPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariablesPanel.swift; sourceTree = "<group>"; };
+		DA58000700000001 /* PhysicsReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsReference.swift; sourceTree = "<group>"; };
+		DA58000800000001 /* VariableStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableStore.swift; sourceTree = "<group>"; };
+		DA58000A00000001 /* SyntaxValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScientificCalculator/Parser/SyntaxValidator.swift; sourceTree = SOURCE_ROOT; };
+		DA58000B00000001 /* DashboardUnitConverterCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardUnitConverterCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -253,6 +270,7 @@
 				C98D1BCB2F3F0E4D00966AE1 /* Keypad */,
 				A100000000000002 /* ContentView.swift */,
 				A100000000000003 /* CalculatorViewModel.swift */,
+				DA58000800000001 /* VariableStore.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -273,6 +291,7 @@
 				A100000000000007 /* Tokenizer.swift */,
 				A100000000000008 /* Parser.swift */,
 				A100000000000009 /* ParserError.swift */,
+				DA58000A00000001 /* SyntaxValidator.swift */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
@@ -369,6 +388,8 @@
 				C98D1BBA2F3F0E4D00966AE1 /* AssistantView.swift */,
 				C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */,
 				C98D1BBC2F3F0E4D00966AE1 /* NLTranslator.swift */,
+				C98D1BCC2F3F0E4D00966AE1 /* AssistantMetrics.swift */,
+				C98D1BCE2F3F0E4D00966AE1 /* LocalAPIServer.swift */,
 				C98D1BBD2F3F0E4D00966AE1 /* QuickSolverView.swift */,
 			);
 			path = Assistant;
@@ -386,6 +407,9 @@
 			isa = PBXGroup;
 			children = (
 				C98D1BC62F3F0E4D00966AE1 /* CalculatorButton.swift */,
+				DA58000500000001 /* ExpressionInputView.swift */,
+				DA58000600000001 /* VariablesPanel.swift */,
+				DA58000700000001 /* PhysicsReference.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -418,6 +442,7 @@
 				DA58000200000001 /* DashboardViewModel.swift */,
 				DA58000300000001 /* DashboardPlotCard.swift */,
 				DA58000400000001 /* DashboardConstantsCard.swift */,
+				DA58000B00000001 /* DashboardUnitConverterCard.swift */,
 			);
 			path = Dashboard;
 			sourceTree = "<group>";
@@ -520,11 +545,14 @@
 				A000000000000001 /* ScientificCalculatorApp.swift in Sources */,
 				A000000000000002 /* ContentView.swift in Sources */,
 				A000000000000003 /* CalculatorViewModel.swift in Sources */,
+				DA58000800000002 /* VariableStore.swift in Sources */,
 				A000000000000004 /* Node.swift in Sources */,
 				C98D1BBF2F3F0E4D00966AE1 /* QuickSolverView.swift in Sources */,
 				C98D1BC02F3F0E4D00966AE1 /* NLTranslator.swift in Sources */,
 				C98D1BC12F3F0E4D00966AE1 /* AssistantView.swift in Sources */,
 				C98D1BC22F3F0E4D00966AE1 /* AssistantViewModel.swift in Sources */,
+				C98D1BCD2F3F0E4D00966AE1 /* AssistantMetrics.swift in Sources */,
+				C98D1BCF2F3F0E4D00966AE1 /* LocalAPIServer.swift in Sources */,
 				A000000000000005 /* Operators.swift in Sources */,
 				A000000000000006 /* Token.swift in Sources */,
 				A000000000000007 /* Tokenizer.swift in Sources */,
@@ -558,6 +586,11 @@
 				A000000000000053 /* OCRMetrics.swift in Sources */,
 				A000000000000054 /* OCRViewModel.swift in Sources */,
 				A000000000000055 /* OCRView.swift in Sources */,
+				DA58000B00000002 /* DashboardUnitConverterCard.swift in Sources */,
+				DA58000500000002 /* ExpressionInputView.swift in Sources */,
+				DA58000600000002 /* VariablesPanel.swift in Sources */,
+				DA58000700000002 /* PhysicsReference.swift in Sources */,
+				DA58000A00000002 /* SyntaxValidator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

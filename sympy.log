@@ -1,0 +1,25 @@
+==================================================
+SymPy Service Starting on port 8001
+==================================================
+Endpoints:
+  GET  /health
+  POST /simplify
+  POST /solve
+  POST /differentiate
+  POST /integrate
+  POST /evaluate
+  POST /verify
+==================================================
+ * Serving Flask app 'SympyService'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8001
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [16/Feb/2026 17:20:43] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [16/Feb/2026 17:25:50] "[31m[1mPOST /verify HTTP/1.1[0m" 400 -
+127.0.0.1 - - [16/Feb/2026 17:25:54] "[31m[1mPOST /verify HTTP/1.1[0m" 400 -
+127.0.0.1 - - [16/Feb/2026 17:54:45] "POST /simplify HTTP/1.1" 200 -
+127.0.0.1 - - [16/Feb/2026 18:19:45] "POST /simplify HTTP/1.1" 200 -
+127.0.0.1 - - [16/Feb/2026 18:20:20] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [16/Feb/2026 18:22:44] "[31m[1mPOST /verify HTTP/1.1[0m" 400 -
+127.0.0.1 - - [16/Feb/2026 18:22:46] "POST /solve HTTP/1.1" 200 -

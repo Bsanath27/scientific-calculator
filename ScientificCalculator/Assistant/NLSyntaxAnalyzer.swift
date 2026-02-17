@@ -11,13 +11,14 @@ struct NLSyntaxAnalyzer {
         // Operations
         "calculate", "compute", "evaluate", "simplify", "solve",
         "derivative", "derive", "differentiate", "integral", "integrate",
-        "factor", "expand", "limit", "roots",
+        "antiderivative", "factor", "expand", "limit", "roots",
         
         // Functions
         "sin", "sine", "cos", "cosine", "tan", "tangent",
         "log", "ln", "natural", "sqrt", "square", "root", "cube",
         "abs", "absolute", "magnitude", "factorial",
         "mean", "median", "mode", "determinant", "inverse", "transpose",
+        "std", "dev", "variance", "standard", "deviation",
         
         // Connectors/Prepositions
         "of", "with", "respect", "to", "for", "in", "from", "and", "plus", "minus", "times", "divided", "by", "over", "power",
@@ -56,38 +57,20 @@ struct NLSyntaxAnalyzer {
         return words.joined(separator: " ")
     }
     
-    /// Standardizes input phrases to canonical math expressions
-    /// - Parameter input: Raw or spell-checked input
-    /// - Returns: Standardized string (e.g. "root of 4" -> "sqrt(4)")
+    /// Standardizes input: lowercases and detects implicit equations.
+    /// NOTE: Semantic phrase→expression mapping is handled by NLTranslator.
+    /// This function intentionally does NOT replace phrases like "derivative of" → "diff"
+    /// because that would break NLTranslator's regex pattern matching.
     static func standardize(_ input: String) -> String {
-        var text = input.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let text = input.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         
-        // 1. Phrase Replacements
-        let replacements: [(String, String)] = [
-            ("root of", "sqrt"),
-            ("square root of", "sqrt"),
-            ("cubic root of", "cbrt"),
-            ("derivative of", "diff"),
-            ("derivative", "diff"),
-            ("antiderivative of", "integrate"),
-            ("integral of", "integrate"),
-            ("multiplied by", "*"),
-            ("divided by", "/"),
-            ("into", "*"),
-            ("times", "*"),
-            ("plus", "+"),
-            ("minus", "-"),
-            ("equals", "="),
-            ("equal to", "=")
-        ]
+        guard !text.isEmpty else { return text }
         
-        for (phrase, replacement) in replacements {
-             text = text.replacingOccurrences(of: phrase, with: replacement)
-        }
+        // If it looks like an equation (has =) but no command keyword, treat as solve
+        let commandKeywords = ["solve", "diff", "differentiate", "derive", "integrate", "factor", "expand", "simplify", "limit"]
+        let hasCommand = commandKeywords.contains(where: { text.hasPrefix($0) })
         
-        // 2. Equation Handling
-        // If it looks like an equation (has =) but no command, treat as solve
-        if text.contains("=") && !text.contains("solve") {
+        if text.contains("=") && !hasCommand {
             return "solve \(text)"
         }
         

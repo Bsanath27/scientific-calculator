@@ -69,7 +69,9 @@ final class OCRClientTests: XCTestCase {
             confidence: 0.92,
             processingTimeMs: 150.5,
             canonicalExpression: "x**2 + 1",
-            validated: true
+            validated: true,
+            refinedExpression: "x**2 + 1",
+            rawExpression: "x^{2} + 1"
         )
         
         XCTAssertEqual(result.expression, "x^2 + 1")

@@ -23,6 +23,9 @@ struct EvaluationMetrics: Equatable, Codable {
     /// Length of input expression
     let expressionLength: Int
     
+    /// Type of operation: "numeric", "symbolic", or "fallback"
+    let operationType: String
+    
     // MARK: - Symbolic-specific metrics (Phase 2)
     
     /// Time spent calling Python service (milliseconds) - nil for numeric
@@ -30,6 +33,14 @@ struct EvaluationMetrics: Equatable, Codable {
     
     /// Time spent converting AST to SymPy (milliseconds) - nil for numeric
     let conversionTimeMs: Double?
+    
+    // MARK: - OCR-specific metrics (Phase 4)
+    
+    /// Time spent on OCR recognition (milliseconds) - nil for non-OCR
+    let ocrTimeMs: Double?
+    
+    /// OCR recognition confidence score (0.0-1.0) - nil for non-OCR
+    let ocrConfidence: Double?
 }
 
 extension EvaluationMetrics {
@@ -41,7 +52,10 @@ extension EvaluationMetrics {
         peakMemoryKB: 0,
         astNodeCount: 0,
         expressionLength: 0,
+        operationType: "numeric",
         pythonCallTimeMs: nil,
-        conversionTimeMs: nil
+        conversionTimeMs: nil,
+        ocrTimeMs: nil,
+        ocrConfidence: nil
     )
 }

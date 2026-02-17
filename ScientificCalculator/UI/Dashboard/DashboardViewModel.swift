@@ -8,17 +8,33 @@ import SwiftUI
 class DashboardViewModel: ObservableObject {
     @Published var expression: String = ""
     @Published var result: String = ""
-    @Published var variables: [String: Double] = [:]
     @Published var history: [HistoryEntry] = []
     @Published var showPlotPreview: Bool = false
     
-    private let dispatcher: Dispatcher
-    private let variablesKey = "dashboard_variables"
-    private let historyKey = "dashboard_history"
+    /// Shared variable store — same instance used by Calculator
+    let variableStore: VariableStore
     
-    init(dispatcher: Dispatcher = Dispatcher()) {
+    /// Convenience accessor (delegates to shared store)
+    var variables: [String: Double] {
+        get { variableStore.variables }
+        set { variableStore.variables = newValue }
+    }
+    
+    private let dispatcher: Dispatcher
+    private let historyKey = "dashboard_history"
+    private var variableStoreSubscription: AnyCancellable?
+    
+    init(dispatcher: Dispatcher = Dispatcher(), variableStore: VariableStore = .shared) {
         self.dispatcher = dispatcher
-        loadData()
+        self.variableStore = variableStore
+        loadHistory()
+        
+        // Forward variable store changes to trigger UI updates
+        variableStoreSubscription = variableStore.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
     }
     
     func evaluate() {
@@ -27,28 +43,33 @@ class DashboardViewModel: ObservableObject {
         // Detect if it's a plot candidate (contains x)
         showPlotPreview = expression.contains("x")
         
-        let context = EvaluationContext(variableBindings: variables)
-        let report = dispatcher.evaluate(expression: expression, context: context)
+        let expr = self.expression
+        let context = variableStore.evaluationContext()
         
-        DispatchQueue.main.async {
-            self.result = report.resultString
+        Task { [weak self] in
+            guard let self = self else { return }
+            let report = await self.dispatcher.evaluateAsync(expression: expr, context: context)
             
-            // Add to local history
-            let entry = HistoryEntry(
-                expression: self.expression,
-                result: self.result,
-                timestamp: Date(),
-                metrics: report.metrics
-            )
-            self.history.insert(entry, at: 0)
-            if self.history.count > 20 { self.history.removeLast() }
-            
-            // Auto-detect variable definition
-            if self.expression.contains("=") {
-                self.extractVariable(from: self.expression, value: self.result)
+            await MainActor.run {
+                self.result = report.resultString
+                
+                // Add to local history
+                let entry = HistoryEntry(
+                    expression: expr,
+                    result: self.result,
+                    timestamp: Date(),
+                    metrics: report.metrics
+                )
+                self.history.insert(entry, at: 0)
+                if self.history.count > 20 { self.history.removeLast() }
+                
+                // Auto-detect variable definition
+                if expr.contains("=") {
+                    self.extractVariable(from: expr, value: self.result)
+                }
+                
+                self.saveHistory()
             }
-            
-            self.saveData()
         }
     }
     
@@ -62,13 +83,11 @@ class DashboardViewModel: ObservableObject {
     }
     
     func addVariable(name: String, value: Double) {
-        variables[name] = value
-        saveData()
+        variableStore.addVariable(name: name, value: value)
     }
     
     func deleteVariable(name: String) {
-        variables.removeValue(forKey: name)
-        saveData()
+        variableStore.deleteVariable(name: name)
     }
     
     private func extractVariable(from expression: String, value: String) {
@@ -76,7 +95,7 @@ class DashboardViewModel: ObservableObject {
         if parts.count == 2, let doubleVal = Double(value) {
             let name = parts[0].replacingOccurrences(of: "let ", with: "")
             if !name.isEmpty && name.rangeOfCharacter(from: CharacterSet.letters.inverted) == nil {
-                variables[name] = doubleVal
+                variableStore.addVariable(name: name, value: doubleVal)
             }
         }
     }
@@ -84,22 +103,17 @@ class DashboardViewModel: ObservableObject {
     func handleDrop(resultString: String) {
         if let val = Double(resultString) {
             let name = "v\(variables.count + 1)"
-            variables[name] = val
-            saveData()
+            variableStore.addVariable(name: name, value: val)
         }
     }
     
-    private func saveData() {
-        UserDefaults.standard.set(variables, forKey: variablesKey)
+    private func saveHistory() {
         if let encoded = try? JSONEncoder().encode(history) {
             UserDefaults.standard.set(encoded, forKey: historyKey)
         }
     }
     
-    private func loadData() {
-        if let savedVars = UserDefaults.standard.dictionary(forKey: variablesKey) as? [String: Double] {
-            variables = savedVars
-        }
+    private func loadHistory() {
         if let historyData = UserDefaults.standard.data(forKey: historyKey),
            let decoded = try? JSONDecoder().decode([HistoryEntry].self, from: historyData) {
             history = decoded

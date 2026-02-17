@@ -108,14 +108,14 @@ struct NLTranslator {
         // "derivative of X with respect to Y" / "differentiate X"
         // Synonyms: derive, diff
         let derivPatterns: [(String, String)] = [
-            ("derivative of (.+?) with respect to (\\w+)", ""),
-            ("differentiate (.+?) with respect to (\\w+)", ""),
-            ("derive (.+?) with respect to (\\w+)", ""),
-            ("d/d(\\w+) of (.+)", ""),
-            ("derivative of (.+)", ""),
-            ("differentiate (.+)", ""),
-            ("derive (.+)", ""),
-            ("diff (.+)", ""),
+            ("\\bderivative of (.+?) with respect to (\\w+)", ""),
+            ("\\bdifferentiate (.+?) with respect to (\\w+)", ""),
+            ("\\bderive (.+?) with respect to (\\w+)", ""),
+            ("\\bd/d(\\w+) of (.+)", ""),
+            ("\\bderivative of (.+)", ""),
+            ("\\bdifferentiate (.+)", ""),
+            ("\\bderive (.+)", ""),
+            ("\\bdiff (.+)", ""),
         ]
         
         for (pattern, _) in derivPatterns {

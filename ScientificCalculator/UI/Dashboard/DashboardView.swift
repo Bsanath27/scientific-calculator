@@ -44,8 +44,11 @@ struct DashboardView: View {
                     }
                     .frame(maxWidth: .infinity)
                     
-                    DashboardConstantsCard(viewModel: viewModel)
-                        .frame(width: 200)
+                    VStack(spacing: 16) {
+                        DashboardConstantsCard(viewModel: viewModel)
+                        DashboardUnitConverterCard()
+                    }
+                    .frame(width: 250)
                 }
                 
                 // Middle Row: Variables & Live Plot

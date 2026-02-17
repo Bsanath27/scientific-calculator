@@ -73,12 +73,22 @@ enum ComputationMode {
 
 /// Protocol for math evaluation engines
 protocol MathEngine {
-    /// Evaluate AST and return result with metrics
+    /// Evaluate AST and return result with metrics (synchronous)
     func evaluate(ast: Node, context: EvaluationContext) -> EvaluationResult
+    
+    /// Evaluate AST asynchronously (override for engines with async operations)
+    func evaluateAsync(ast: Node, context: EvaluationContext) async -> EvaluationResult
     
     /// Engine identifier
     var engineName: String { get }
     
     /// Supported mode
     var mode: ComputationMode { get }
+}
+
+/// Default async implementation wraps the sync call
+extension MathEngine {
+    func evaluateAsync(ast: Node, context: EvaluationContext) async -> EvaluationResult {
+        return evaluate(ast: ast, context: context)
+    }
 }

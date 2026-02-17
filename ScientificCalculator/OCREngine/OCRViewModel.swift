@@ -32,6 +32,17 @@ final class OCRViewModel: ObservableObject {
     @Published var state: OCRState = .idle
     @Published var recognizedExpression: String = ""
     @Published var rawLatex: String = ""
+    
+    // Phase 4: Raw vs Refined selection
+    @Published var rawExpression: String = ""
+    @Published var refinedExpression: String = ""
+    @Published var useRefinedResult: Bool = true {
+        didSet {
+            // Update the editable expression when selection changes
+            recognizedExpression = useRefinedResult ? refinedExpression : rawExpression
+        }
+    }
+    
     @Published var metricsText: String = ""
     @Published var selectedImage: NSImage? = nil
     @Published var confidenceScore: Double = 0.0
@@ -189,10 +200,16 @@ final class OCRViewModel: ObservableObject {
                 
                 await MainActor.run {
                     self.rawLatex = ocrResult.latex
-                    self.recognizedExpression = normalized
+                    self.rawExpression = ocrResult.rawExpression ?? normalized
+                    self.refinedExpression = ocrResult.refinedExpression ?? normalized
+                    
+                    // Initially use whichever variant the service considered "best" (normalized)
+                    // or respect the current toggle if user has one
+                    self.recognizedExpression = self.useRefinedResult ? self.refinedExpression : self.rawExpression
+                    
                     self.confidenceScore = ocrResult.confidence
                     self.metricsText = metrics.displayString
-                    self.state = .recognized(normalized)
+                    self.state = .recognized(self.recognizedExpression)
                     
                     #if DEBUG
                     print(metrics.consoleDescription)

@@ -11,6 +11,8 @@ struct ContentView: View {
     @State private var showTools = false
     @State private var showOCR = false
     @State private var showAssistant = false
+    @State private var showVariables = false
+    @State private var showPhysics = false
     @State private var isScientificOpen = false // Drawer state
     
     var body: some View {
@@ -38,6 +40,8 @@ struct ContentView: View {
                         
                         // Feature Toggles
                         HStack(spacing: 12) {
+                            ToolButton(icon: "atom", label: "Physics", action: { showPhysics = true }, theme: themeManager)
+                            ToolButton(icon: "textformat.abc", label: "Variables", action: { showVariables = true }, theme: themeManager)
                             ToolButton(icon: "text.bubble", label: "Assistant", action: { showAssistant = true }, theme: themeManager)
                             ToolButton(icon: "doc.text.viewfinder", label: "OCR", action: { showOCR = true }, theme: themeManager)
                             ToolButton(icon: "wrench.and.screwdriver", label: "Tools", action: { showTools = true }, theme: themeManager)
@@ -67,14 +71,11 @@ struct ContentView: View {
                                 .font(.caption)
                         }
                         
-                        // Main Input
-                        TextField("0", text: $viewModel.expression)
-                            .font(.system(size: 48, weight: .light, design: .monospaced))
-                            .multilineTextAlignment(.trailing)
-                            .textFieldStyle(.plain)
-                            .foregroundColor(themeManager.current.textPrimary)
-                            .padding(.horizontal)
-                            .onSubmit { viewModel.evaluate() }
+                        // Main Input with Parenthesis Highlighting
+                        ExpressionInputView(
+                            expression: $viewModel.expression,
+                            onSubmit: { viewModel.evaluate() }
+                        )
                         
                         // Result (Preview)
                         if !viewModel.result.isEmpty {
@@ -157,6 +158,14 @@ struct ContentView: View {
             AssistantView { expr in
                 viewModel.expression = expr
                 viewModel.evaluate()
+            }
+        }
+        .popover(isPresented: $showVariables) {
+            VariablesPanel(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showPhysics) {
+            PhysicsReference { value in
+                viewModel.insertText(value)
             }
         }
     }

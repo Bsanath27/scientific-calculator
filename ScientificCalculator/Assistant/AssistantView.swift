@@ -1,6 +1,6 @@
 // Assistant/AssistantView.swift
 // Scientific Calculator - Phase 5: Assistant Chat UI
-// Chat-style panel for natural language math queries.
+// Chat-style panel with expression preview and edit-before-evaluate.
 
 import SwiftUI
 
@@ -11,6 +11,8 @@ struct AssistantView: View {
     /// Callback to send expression to calculator
     var onUseExpression: ((String) -> Void)?
     
+    @FocusState private var isInputFocused: Bool
+
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -69,6 +71,11 @@ struct AssistantView: View {
             
             Divider()
             
+            // Expression Preview + Edit Pane
+            if viewModel.showPreview {
+                ExpressionPreviewPane(viewModel: viewModel)
+            }
+            
             // Quick Actions
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -98,19 +105,119 @@ struct AssistantView: View {
             HStack(spacing: 8) {
                 TextField("Ask a math question...", text: $viewModel.inputText)
                     .textFieldStyle(.roundedBorder)
-                    .onSubmit { viewModel.send() }
+                    .focused($isInputFocused)
+                    .onSubmit {
+                        viewModel.translate()
+                        // Keep focus
+                        isInputFocused = true
+                    }
                 
-                Button(action: { viewModel.send() }) {
-                    Image(systemName: "arrow.up.circle.fill")
+                // Translate button (shows preview)
+                Button(action: { viewModel.translate() }) {
+                    Image(systemName: "arrow.right.circle.fill")
                         .font(.title2)
                         .foregroundColor(viewModel.inputText.isEmpty ? .secondary : .accentColor)
                 }
                 .buttonStyle(.plain)
                 .disabled(viewModel.inputText.isEmpty || viewModel.isProcessing)
+                .help("Translate & Preview")
+                
+                // Quick evaluate (skip preview)
+                Button(action: { viewModel.send() }) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(viewModel.inputText.isEmpty ? .secondary : .green)
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.inputText.isEmpty || viewModel.isProcessing)
+                .help("Quick Evaluate (skip preview)")
             }
             .padding()
         }
         .frame(minWidth: 450, minHeight: 500)
+        .onAppear {
+            isInputFocused = true
+        }
+    }
+}
+
+// MARK: - Expression Preview Pane
+
+struct ExpressionPreviewPane: View {
+    @ObservedObject var viewModel: AssistantViewModel
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: "eye")
+                    .foregroundColor(.blue)
+                Text("Expression Preview")
+                    .font(.caption.bold())
+                    .foregroundColor(.blue)
+                
+                Spacer()
+                
+                // Confidence badge
+                Text("\(Int(viewModel.previewConfidence * 100))%")
+                    .font(.caption2.bold())
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(confidenceColor.opacity(0.15))
+                    .foregroundColor(confidenceColor)
+                    .cornerRadius(4)
+                
+                // Operation badge
+                if viewModel.previewOperation != .evaluate {
+                    Text(viewModel.previewOperation.rawValue.capitalized)
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.purple.opacity(0.15))
+                        .foregroundColor(.purple)
+                        .cornerRadius(4)
+                }
+                
+                Button(action: { viewModel.dismissPreview() }) {
+                    Image(systemName: "xmark.circle")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
+            }
+            
+            // Editable expression field
+            HStack(spacing: 8) {
+                TextField("Expression", text: $viewModel.previewExpression)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(.body, design: .monospaced))
+                
+                Button("Evaluate") {
+                    viewModel.evaluate()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+            
+            if let variable = viewModel.previewVariable {
+                HStack {
+                    Text("Variable: \(variable)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color.blue.opacity(0.05))
+    }
+    
+    private var confidenceColor: Color {
+        switch viewModel.previewConfidence {
+        case 0.8...1.0: return .green
+        case 0.5..<0.8: return .orange
+        default: return .red
+        }
     }
 }
 
@@ -134,6 +241,13 @@ struct MessageBubble: View {
                     .padding(10)
                     .background(message.role == .user ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.1))
                     .cornerRadius(12)
+                
+                // Metrics display for assistant messages
+                if message.role == .assistant, let metrics = message.metrics {
+                    Text(metrics.summary)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 
                 // "Use in Calculator" button for assistant messages with expressions
                 if message.role == .assistant, let expr = message.translatedExpression {

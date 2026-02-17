@@ -7,24 +7,33 @@ Exposes SymPy functionality via REST API for Swift calculator
 from flask import Flask, request, jsonify
 from sympy import (
     sympify, simplify, solve, diff, integrate, sqrt, 
-    sin, cos, tan, log, ln, exp, pi, E, Symbol, latex, Function
+    sin, cos, tan, log, ln, exp, pi, E, Symbol, latex, Function, Eq
 )
-from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application
+from sympy.parsing.sympy_parser import (
+    parse_expr, standard_transformations, 
+    implicit_multiplication, implicit_application
+)
 import time
 import traceback
 import ast
 
 app = Flask(__name__)
 
-# Configure parsing transformations
-TRANSFORMATIONS = standard_transformations + (implicit_multiplication_application,)
+# Configure parsing transformations - using implicit_multiplication instead of application
+# to better handle multi-character variable names while supporting '2x'
+TRANSFORMATIONS = standard_transformations + (implicit_multiplication, implicit_application)
 
 def safe_sympify(expression_str):
     """Safely parse expression string to SymPy object"""
     try:
         # Convert ^ to ** for exponentiation
         expression_str = expression_str.replace('^', '**')
-        local_dict = {'Function': Function, 'Symbol': Symbol, 'sin': sin, 'cos': cos, 'tan': tan, 'log': log, 'ln': ln, 'sqrt': sqrt, 'exp': exp, 'pi': pi, 'E': E}
+        # Include Eq in local_dict so solve() recognizes equations correctly
+        local_dict = {
+            'Function': Function, 'Symbol': Symbol, 'Eq': Eq,
+            'sin': sin, 'cos': cos, 'tan': tan, 'log': log, 'ln': ln, 
+            'sqrt': sqrt, 'exp': exp, 'pi': pi, 'E': E
+        }
         
         # Detect undefined functions using AST to prevent them being parsed as Symbols * Tuple
         try:

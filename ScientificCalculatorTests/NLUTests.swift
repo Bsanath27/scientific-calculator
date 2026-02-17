@@ -49,14 +49,14 @@ final class NLUTests: XCTestCase {
         
         // Statistics
         let mean = NLTranslator.translate("mean of 1, 2, 3, 4, 5")
-        XCTAssertEqual(mean.expression, "mean([1,2,3,4,5])")
+        XCTAssertEqual(mean.expression, "mean([1, 2, 3, 4, 5])")
         
         let stddev = NLTranslator.translate("std dev of 1, 2, 3")
-        XCTAssertEqual(stddev.expression, "stdev([1,2,3])")
+        XCTAssertEqual(stddev.expression, "stdev([1, 2, 3])")
         
         // Linear Algebra
         let det = NLTranslator.translate("determinant of [[1, 2], [3, 4]]")
-        XCTAssertEqual(det.expression, "det([[1,2],[3,4]])")
+        XCTAssertEqual(det.expression, "det([[1, 2], [3, 4]])")
         
         // Roots (synonym for solve)
         let roots = NLTranslator.translate("roots of x^2 - 1")

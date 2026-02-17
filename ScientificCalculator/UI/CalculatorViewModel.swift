@@ -80,8 +80,29 @@ final class CalculatorViewModel: ObservableObject {
         }
     }
     
+    /// Shared variable store — single source of truth for all views
+    let variableStore: VariableStore
+    
+    /// Convenience accessor for variables (delegates to shared store)
+    var variables: [String: Double] {
+        get { variableStore.variables }
+        set { variableStore.variables = newValue }
+    }
+    
     private let dispatcher = Dispatcher()
     private let benchmarkRunner = BenchmarkRunner()
+    private var variableStoreSubscription: AnyCancellable?
+    
+    init(variableStore: VariableStore = .shared) {
+        self.variableStore = variableStore
+        
+        // Forward variable store changes to trigger UI updates
+        variableStoreSubscription = variableStore.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+    }
     
     /// Evaluate current expression
     func evaluate() {
@@ -91,19 +112,44 @@ final class CalculatorViewModel: ObservableObject {
             return
         }
         
-        // Run on background thread to prevent UI freezing (30s timeout)
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        // Check for variable assignment: "x = 42"
+        if expression.contains("=") && !expression.contains("==") {
+            let parts = expression.split(separator: "=", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
+            if parts.count == 2 {
+                let name = parts[0]
+                let valueExpr = parts[1]
+                // Name must be letters only
+                if !name.isEmpty && name.rangeOfCharacter(from: CharacterSet.letters.inverted) == nil {
+                    // Evaluate the RHS
+                    let context = variableStore.evaluationContext()
+                    let report = dispatcher.evaluate(expression: valueExpr, context: context)
+                    if let val = report.result.doubleValue {
+                        DispatchQueue.main.async {
+                            self.variableStore.addVariable(name: name, value: val)
+                            self.result = "\(name) = \(val)"
+                            self.metricsText = ResultFormatter.formatMetrics(report.metrics)
+                        }
+                        return
+                    }
+                }
+            }
+        }
+        
+        // Run evaluation asynchronously via Task
+        let expr = self.expression
+        let context = variableStore.evaluationContext()
+        
+        Task { [weak self] in
             guard let self = self else { return }
+            let report = await self.dispatcher.evaluateAsync(expression: expr, context: context)
             
-            let report = self.dispatcher.evaluate(expression: self.expression)
-            
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.result = report.resultString
                 self.metricsText = ResultFormatter.formatMetrics(report.metrics)
                 
                 // Add to history
                 let entry = HistoryEntry(
-                    expression: self.expression,
+                    expression: expr,
                     result: self.result,
                     timestamp: Date(),
                     metrics: report.metrics
@@ -118,6 +164,11 @@ final class CalculatorViewModel: ObservableObject {
         }
     }
     
+    /// Insert text into expression
+    func insertText(_ text: String) {
+        expression += text
+    }
+    
     /// Clear current input
     func clear() {
         expression = ""
@@ -128,6 +179,20 @@ final class CalculatorViewModel: ObservableObject {
     /// Clear all history
     func clearHistory() {
         history.removeAll()
+    }
+    
+    // MARK: - Variable Management (delegates to shared store)
+    
+    func addVariable(name: String, value: Double) {
+        variableStore.addVariable(name: name, value: value)
+    }
+    
+    func deleteVariable(name: String) {
+        variableStore.deleteVariable(name: name)
+    }
+    
+    func updateVariable(name: String, value: Double) {
+        variableStore.updateVariable(name: name, value: value)
     }
     
     /// Run benchmark on current expression

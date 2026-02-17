@@ -148,8 +148,16 @@ struct OCRView: View {
             
             // Recognized Expression (editable)
             if viewModel.state != .idle && viewModel.state != .loading {
-                GroupBox("Expression") {
-                    VStack(alignment: .leading, spacing: 8) {
+                GroupBox("Final Result") {
+                    VStack(alignment: .leading, spacing: 12) {
+                        // Choice Picker
+                        Picker("Interpretation Strategy", selection: $viewModel.useRefinedResult) {
+                            Text("Refined").tag(true)
+                            Text("Raw").tag(false)
+                        }
+                        .pickerStyle(.segmented)
+                        .help("Refined uses heuristics to fix OCR errors (like split variables). Raw stays closer to the exact visual result.")
+                        
                         HStack {
                             TextField("Recognized expression", text: $viewModel.recognizedExpression)
                                 .textFieldStyle(.roundedBorder)
@@ -167,7 +175,7 @@ struct OCRView: View {
                             }
                         }
                         
-                        Text("Edit the expression if OCR made errors, then evaluate")
+                        Text("Choose the best interpretation, refine it if needed, and evaluate.")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }

@@ -15,6 +15,10 @@ struct OCRResult {
     let canonicalExpression: String?
     /// Whether SymPy successfully parsed and validated the LaTeX
     let validated: Bool
+    
+    // New fields for Phase 4
+    let refinedExpression: String?
+    let rawExpression: String?
 }
 
 /// Errors from OCR service communication
@@ -209,6 +213,8 @@ class OCRClient {
             let processing_time_ms: Double
             let canonical_expression: String?
             let validated: Bool?
+            let refined_expression: String?
+            let raw_expression: String?
         }
         
         do {
@@ -219,7 +225,9 @@ class OCRClient {
                 confidence: response.confidence,
                 processingTimeMs: response.processing_time_ms,
                 canonicalExpression: response.canonical_expression,
-                validated: response.validated ?? false
+                validated: response.validated ?? false,
+                refinedExpression: response.refined_expression,
+                rawExpression: response.raw_expression
             )
         } catch {
             throw OCRClientError.invalidResponse
