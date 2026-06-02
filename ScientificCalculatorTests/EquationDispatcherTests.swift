@@ -29,14 +29,14 @@ final class EquationDispatcherTests: XCTestCase {
         }
     }
     
-    func testDispatcherSwitchesToSymbolicForEquation() {
+    func testDispatcherSwitchesToSymbolicForEquation() async {
         let numeric = MockNumericEngine()
         let symbolic = MockSymbolicEngine()
         let dispatcher = Dispatcher(numeric: numeric, symbolic: symbolic)
         dispatcher.mode = .numeric
         
         let expression = "3*x - 5 = 16"
-        let report = dispatcher.evaluate(expression: expression)
+        let report = await dispatcher.evaluateAsync(expression: expression)
         
         XCTAssertTrue(symbolic.wasCalled, "Dispatcher should switch to SymbolicEngine for equations")
         
@@ -47,14 +47,14 @@ final class EquationDispatcherTests: XCTestCase {
         }
     }
     
-    func testDispatcherSwitchesToSymbolicForUndefinedVariable() {
+    func testDispatcherSwitchesToSymbolicForUndefinedVariable() async {
         let numeric = MockNumericEngine()
         let symbolic = MockSymbolicEngine()
         let dispatcher = Dispatcher(numeric: numeric, symbolic: symbolic)
         dispatcher.mode = .numeric
         
         let expression = "3*x + 10" // x is undefined
-        let report = dispatcher.evaluate(expression: expression)
+        let report = await dispatcher.evaluateAsync(expression: expression)
         
         XCTAssertTrue(symbolic.wasCalled, "Dispatcher should switch to SymbolicEngine for undefined variables")
     }

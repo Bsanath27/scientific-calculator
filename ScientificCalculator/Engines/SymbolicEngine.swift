@@ -16,27 +16,11 @@ class SymbolicEngine: MathEngine {
         self.pythonClient = pythonClient
     }
     
-    /// Synchronous evaluate — kept for protocol conformance (delegates to async internally)
+    /// Synchronous evaluate — kept for protocol conformance (return error for symbolic)
     func evaluate(ast: Node, context: EvaluationContext) -> EvaluationResult {
-        // Fallback: run async inside a task and wait synchronously
-        // This path should NOT be called from the main thread; callers should use evaluateAsync instead.
-        let semaphore = DispatchSemaphore(value: 0)
-        var result: EvaluationResult = .error("Symbolic evaluation failed", issue: nil)
-        
-        Task { [weak self] in
-            guard let self = self else {
-                semaphore.signal()
-                return
-            }
-            result = await self.evaluateAsync(ast: ast, context: context)
-            semaphore.signal()
-        }
-        
-        let timeout = semaphore.wait(timeout: .now() + .seconds(30))
-        if timeout == .timedOut {
-            return .error("Symbolic evaluation timeout (>30s)", issue: nil)
-        }
-        return result
+        // Symbolic evaluation MUST be async because it relies on external Python services.
+        // Synchronous blocking (semaphores) leads to deadlocks if called from the main thread.
+        return .error("Symbolic computation requires async execution", issue: .symbolicComputationRequired)
     }
     
     /// Proper async evaluation — no blocking, no semaphores

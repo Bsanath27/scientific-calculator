@@ -4,7 +4,7 @@
 import Foundation
 
 /// Binary operators for arithmetic
-enum BinaryOperator: String, CaseIterable {
+enum BinaryOperator: String, CaseIterable, Codable {
     case add = "+"
     case subtract = "-"
     case multiply = "*"
@@ -32,13 +32,13 @@ enum BinaryOperator: String, CaseIterable {
 }
 
 /// Unary operators (prefix only for now)
-enum UnaryOperator: String {
+enum UnaryOperator: String, Codable {
     case negate = "-"
     case positive = "+"
 }
 
 /// Mathematical functions supported
-enum MathFunction: String, CaseIterable {
+enum MathFunction: String, CaseIterable, Codable {
     case sin
     case cos
     case tan
@@ -51,7 +51,7 @@ enum MathFunction: String, CaseIterable {
 }
 
 /// Mathematical constants
-enum MathConstant: String, CaseIterable {
+enum MathConstant: String, CaseIterable, Codable {
     case pi
     case e
     

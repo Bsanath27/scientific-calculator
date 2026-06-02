@@ -13,66 +13,39 @@ struct BasicKeypad: View {
     let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 4)
     
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
-            // Row 1: Clear, Delete, Pow, Div
-            Group {
-                CalculatorButton(label: "AC", color: theme.current.buttonDestructive, textColor: .white, action: onClear)
-                CalculatorButton(label: "⌫", color: theme.current.buttonScientific, textColor: theme.current.textPrimary, action: onDelete)
-                CalculatorButton(label: "^", color: theme.current.buttonScientific, textColor: theme.current.textPrimary, action: { onKeyPress("^") })
-                CalculatorButton(label: "÷", color: theme.current.buttonOperator, textColor: .white, action: { onKeyPress("/") })
-            }
-            
-            // Row 2: 7, 8, 9, Mul
-            Group {
-                numBtn("7")
-                numBtn("8")
-                numBtn("9")
-                opBtn("×", "*")
-            }
-            
-            // Row 3: 4, 5, 6, Sub
-            Group {
-                numBtn("4")
-                numBtn("5")
-                numBtn("6")
-                opBtn("-", "-")
-            }
-            
-            // Row 4: 1, 2, 3, Add
-            Group {
-                numBtn("1")
-                numBtn("2")
-                numBtn("3")
-                opBtn("+", "+")
-            }
-            
-            // Row 5: 0, ., Ans, =
-            Group {
-                CalculatorButton(label: "0", color: theme.current.buttonNumber, textColor: theme.current.textPrimary, action: { onKeyPress("0") })
-                CalculatorButton(label: ".", color: theme.current.buttonNumber, textColor: theme.current.textPrimary, action: { onKeyPress(".") })
-                CalculatorButton(label: "Ans", color: theme.current.buttonScientific, textColor: theme.current.textPrimary, action: { onKeyPress("Ans") })
-                CalculatorButton(label: "=", color: theme.current.buttonAction, textColor: .white, action: onEvaluate)
+        GeometryReader { geo in
+            let isCompact = DeviceLayout.isCompact(width: geo.size.width)
+            LazyVGrid(columns: columns, spacing: isCompact ? 8 : 12) {
+                // Row 1: Clear, Delete, Pow, Div
+                HighlightedButton(label: "AC", category: .clear, action: onClear)
+                HighlightedButton(label: "⌫", category: .clear, action: onDelete)
+                HighlightedButton(label: "^", category: .basicOp, action: { onKeyPress("^") })
+                HighlightedButton(label: "÷", category: .basicOp, action: { onKeyPress("/") })
+                
+                // Row 2: 7, 8, 9, Mul
+                HighlightedButton(label: "7", category: .digit, action: { onKeyPress("7") })
+                HighlightedButton(label: "8", category: .digit, action: { onKeyPress("8") })
+                HighlightedButton(label: "9", category: .digit, action: { onKeyPress("9") })
+                HighlightedButton(label: "×", category: .basicOp, action: { onKeyPress("*") })
+                
+                // Row 3: 4, 5, 6, Sub
+                HighlightedButton(label: "4", category: .digit, action: { onKeyPress("4") })
+                HighlightedButton(label: "5", category: .digit, action: { onKeyPress("5") })
+                HighlightedButton(label: "6", category: .digit, action: { onKeyPress("6") })
+                HighlightedButton(label: "-", category: .basicOp, action: { onKeyPress("-") })
+                
+                // Row 4: 1, 2, 3, Add
+                HighlightedButton(label: "1", category: .digit, action: { onKeyPress("1") })
+                HighlightedButton(label: "2", category: .digit, action: { onKeyPress("2") })
+                HighlightedButton(label: "3", category: .digit, action: { onKeyPress("3") })
+                HighlightedButton(label: "+", category: .basicOp, action: { onKeyPress("+") })
+                
+                // Row 5: 0, ., Ans, =
+                HighlightedButton(label: "0", category: .digit, action: { onKeyPress("0") })
+                HighlightedButton(label: ".", category: .digit, action: { onKeyPress(".") })
+                HighlightedButton(label: "Ans", category: .variable, action: { onKeyPress("Ans") })
+                HighlightedButton(label: "=", category: .equals, action: onEvaluate)
             }
         }
-        .padding()
-    }
-    
-    // Helpers
-    func numBtn(_ label: String) -> some View {
-        CalculatorButton(
-            label: label,
-            color: theme.current.buttonNumber,
-            textColor: theme.current.textPrimary,
-            action: { onKeyPress(label) }
-        )
-    }
-    
-    func opBtn(_ label: String, _ value: String) -> some View {
-        CalculatorButton(
-            label: label,
-            color: theme.current.buttonOperator,
-            textColor: .white,
-            action: { onKeyPress(value) }
-        )
     }
 }

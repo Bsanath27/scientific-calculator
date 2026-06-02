@@ -43,7 +43,16 @@
 		A000000000000033 /* StatsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000033 /* StatsEngine.swift */; };
 		A000000000000034 /* GraphEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000034 /* GraphEngine.swift */; };
 		A000000000000035 /* UnitsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000035 /* UnitsEngine.swift */; };
-		A000000000000036 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000036 /* GraphView.swift */; };
+		A000000000000036 /* GraphToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000036 /* GraphToolView.swift */; };
+		E100000000000001 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E110000000000001 /* AppRoute.swift */; };
+		E100000000000002 /* CircuitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E110000000000002 /* CircuitViewModel.swift */; };
+		E100000000000003 /* LogicEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E110000000000003 /* LogicEngine.swift */; };
+		A000000000000100 /* MatrixToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000100 /* MatrixToolView.swift */; };
+		A000000000000101 /* VectorToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000101 /* VectorToolView.swift */; };
+		A000000000000102 /* StatsToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000102 /* StatsToolView.swift */; };
+		A000000000000103 /* UnitsToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000103 /* UnitsToolView.swift */; };
+		A000000000000104 /* CircuitToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000104 /* CircuitToolView.swift */; };
+		A000000000000105 /* LogicToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000105 /* LogicToolView.swift */; };
 		A000000000000037 /* GraphViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000037 /* GraphViewModel.swift */; };
 		A000000000000038 /* NumericToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000038 /* NumericToolsView.swift */; };
 		A000000000000039 /* NumericToolsBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000000000039 /* NumericToolsBenchmark.swift */; };
@@ -65,8 +74,12 @@
 		C98D1BC22F3F0E4D00966AE1 /* AssistantViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BBB2F3F0E4D00966AE1 /* AssistantViewModel.swift */; };
 		C98D1BC52F3F0E4D00966AE2 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC52F3F0E4D00966AE1 /* ThemeManager.swift */; };
 		C98D1BC62F3F0E4D00966AE2 /* CalculatorButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC62F3F0E4D00966AE1 /* CalculatorButton.swift */; };
+		C98D1BD32F3F0E4D00966AE1 /* CalculatorButton+Highlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BD22F3F0E4D00966AE1 /* CalculatorButton+Highlight.swift */; };
 		C98D1BC72F3F0E4D00966AE2 /* ScientificKeypad.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC72F3F0E4D00966AE1 /* ScientificKeypad.swift */; };
 		C98D1BC82F3F0E4D00966AE2 /* BasicKeypad.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BC82F3F0E4D00966AE1 /* BasicKeypad.swift */; };
+		C98D1BD12F3F0E4D00966AE1 /* KeypadContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BD02F3F0E4D00966AE1 /* KeypadContext.swift */; };
+		C98D1BD52F3F0E4D00966AE1 /* DeviceLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BD42F3F0E4D00966AE1 /* DeviceLayout.swift */; };
+		C98D1BD72F3F0E4D00966AE1 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98D1BD82F3F0E4D00966AE1 /* View+Extensions.swift */; };
 		CD48B5AE4EFB42B98338C4E6 /* NotebookModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B4FA92CA9A4E60810AC85E /* NotebookModel.swift */; };
 		C4DB53446808439C8644B399 /* NotebookViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EE797DCFEE498D9D1A656E /* NotebookViewModel.swift */; };
 		F6B5A98C681941B98C5B68B0 /* BlockViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256244F11E934557A71ECF25 /* BlockViews.swift */; };
@@ -131,7 +144,16 @@
 		A100000000000033 /* StatsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsEngine.swift; sourceTree = "<group>"; };
 		A100000000000034 /* GraphEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphEngine.swift; sourceTree = "<group>"; };
 		A100000000000035 /* UnitsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitsEngine.swift; sourceTree = "<group>"; };
-		A100000000000036 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		A100000000000036 /* GraphToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphToolView.swift; sourceTree = "<group>"; };
+		E110000000000001 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation/AppRoute.swift; sourceTree = "<group>"; };
+		E110000000000002 /* CircuitViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/CircuitViewModel.swift; sourceTree = "<group>"; };
+		E110000000000003 /* LogicEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogicEngine.swift; sourceTree = "<group>"; };
+		A100000000000100 /* MatrixToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixToolView.swift; sourceTree = "<group>"; };
+		A100000000000101 /* VectorToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorToolView.swift; sourceTree = "<group>"; };
+		A100000000000102 /* StatsToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsToolView.swift; sourceTree = "<group>"; };
+		A100000000000103 /* UnitsToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitsToolView.swift; sourceTree = "<group>"; };
+		A100000000000104 /* CircuitToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircuitToolView.swift; sourceTree = "<group>"; };
+		A100000000000105 /* LogicToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogicToolView.swift; sourceTree = "<group>"; };
 		A100000000000037 /* GraphViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphViewModel.swift; sourceTree = "<group>"; };
 		A100000000000038 /* NumericToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericToolsView.swift; sourceTree = "<group>"; };
 		A100000000000039 /* NumericToolsBenchmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericToolsBenchmark.swift; sourceTree = "<group>"; };
@@ -157,8 +179,12 @@
 		C98D1BBD2F3F0E4D00966AE1 /* QuickSolverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSolverView.swift; sourceTree = "<group>"; };
 		C98D1BC52F3F0E4D00966AE1 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		C98D1BC62F3F0E4D00966AE1 /* CalculatorButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorButton.swift; sourceTree = "<group>"; };
+		C98D1BD22F3F0E4D00966AE1 /* CalculatorButton+Highlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CalculatorButton+Highlight.swift"; sourceTree = "<group>"; };
 		C98D1BC72F3F0E4D00966AE1 /* ScientificKeypad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScientificKeypad.swift; sourceTree = "<group>"; };
 		C98D1BC82F3F0E4D00966AE1 /* BasicKeypad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicKeypad.swift; sourceTree = "<group>"; };
+		C98D1BD02F3F0E4D00966AE1 /* KeypadContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeypadContext.swift; sourceTree = "<group>"; };
+		C98D1BD42F3F0E4D00966AE1 /* DeviceLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceLayout.swift; sourceTree = "<group>"; };
+		C98D1BD82F3F0E4D00966AE1 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
 		26B4FA92CA9A4E60810AC85E /* NotebookModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookModel.swift; sourceTree = "<group>"; };
 		49EE797DCFEE498D9D1A656E /* NotebookViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookViewModel.swift; sourceTree = "<group>"; };
 		256244F11E934557A71ECF25 /* BlockViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockViews.swift; sourceTree = "<group>"; };
@@ -220,6 +246,7 @@
 				A70000000000000E /* Symbolic */,
 				A70000000000000F /* NumericTools */,
 				A700000000000050 /* OCREngine */,
+				E110000000000002 /* CircuitViewModel.swift */,
 			);
 			path = ScientificCalculator;
 			sourceTree = "<group>";
@@ -262,10 +289,12 @@
 		A700000000000006 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				E110000000000001 /* AppRoute.swift */,
 				7AC076C649A643F6A2697F97 /* AppNavigationView.swift */,
 				DA580000B76B444F87D1A877 /* Dashboard */,
 				14B4F777B76B444F87D1A877 /* Notebook */,
 				C98D1BC92F3F0E4D00966AE1 /* Theme */,
+				C98D1BD62F3F0E4D00966AE1 /* Extensions */,
 				C98D1BCA2F3F0E4D00966AE1 /* Components */,
 				C98D1BCB2F3F0E4D00966AE1 /* Keypad */,
 				A100000000000002 /* ContentView.swift */,
@@ -361,11 +390,26 @@
 				A100000000000033 /* StatsEngine.swift */,
 				A100000000000034 /* GraphEngine.swift */,
 				A100000000000035 /* UnitsEngine.swift */,
-				A100000000000036 /* GraphView.swift */,
 				A100000000000037 /* GraphViewModel.swift */,
 				A100000000000038 /* NumericToolsView.swift */,
+				E110000000000003 /* LogicEngine.swift */,
+				A700000000000100 /* Views */,
 			);
 			path = NumericTools;
+			sourceTree = "<group>";
+		};
+		A700000000000100 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A100000000000100 /* MatrixToolView.swift */,
+				A100000000000101 /* VectorToolView.swift */,
+				A100000000000102 /* StatsToolView.swift */,
+				A100000000000103 /* UnitsToolView.swift */,
+				A100000000000036 /* GraphToolView.swift */,
+				A100000000000104 /* CircuitToolView.swift */,
+				A100000000000105 /* LogicToolView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		A700000000000050 /* OCREngine */ = {
@@ -403,10 +447,20 @@
 			path = Theme;
 			sourceTree = "<group>";
 		};
+		C98D1BD62F3F0E4D00966AE1 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				C98D1BD42F3F0E4D00966AE1 /* DeviceLayout.swift */,
+				C98D1BD82F3F0E4D00966AE1 /* View+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		C98D1BCA2F3F0E4D00966AE1 /* Components */ = {
 			isa = PBXGroup;
 			children = (
 				C98D1BC62F3F0E4D00966AE1 /* CalculatorButton.swift */,
+				C98D1BD22F3F0E4D00966AE1 /* CalculatorButton+Highlight.swift */,
 				DA58000500000001 /* ExpressionInputView.swift */,
 				DA58000600000001 /* VariablesPanel.swift */,
 				DA58000700000001 /* PhysicsReference.swift */,
@@ -419,6 +473,7 @@
 			children = (
 				C98D1BC72F3F0E4D00966AE1 /* ScientificKeypad.swift */,
 				C98D1BC82F3F0E4D00966AE1 /* BasicKeypad.swift */,
+				C98D1BD02F3F0E4D00966AE1 /* KeypadContext.swift */,
 			);
 			path = Keypad;
 			sourceTree = "<group>";
@@ -538,8 +593,12 @@
 				B74A378CE1A24D049E8995B7 /* NotebookView.swift in Sources */,
 				C98D1BC52F3F0E4D00966AE2 /* ThemeManager.swift in Sources */,
 				C98D1BC62F3F0E4D00966AE2 /* CalculatorButton.swift in Sources */,
+				C98D1BD32F3F0E4D00966AE1 /* CalculatorButton+Highlight.swift in Sources */,
+				C98D1BD52F3F0E4D00966AE1 /* DeviceLayout.swift in Sources */,
+				C98D1BD72F3F0E4D00966AE1 /* View+Extensions.swift in Sources */,
 				C98D1BC72F3F0E4D00966AE2 /* ScientificKeypad.swift in Sources */,
 				C98D1BC82F3F0E4D00966AE2 /* BasicKeypad.swift in Sources */,
+				C98D1BD12F3F0E4D00966AE1 /* KeypadContext.swift in Sources */,
 				C98D1BC42F3F0E4D00966AE1 /* NLSyntaxAnalyzer.swift in Sources */,
 				A000000000000090 /* PythonServiceManager.swift in Sources */,
 				A000000000000001 /* ScientificCalculatorApp.swift in Sources */,
@@ -576,7 +635,16 @@
 				A000000000000033 /* StatsEngine.swift in Sources */,
 				A000000000000034 /* GraphEngine.swift in Sources */,
 				A000000000000035 /* UnitsEngine.swift in Sources */,
-				A000000000000036 /* GraphView.swift in Sources */,
+				A000000000000036 /* GraphToolView.swift in Sources */,
+				E100000000000001 /* AppRoute.swift in Sources */,
+				E100000000000002 /* CircuitViewModel.swift in Sources */,
+				E100000000000003 /* LogicEngine.swift in Sources */,
+				A000000000000100 /* MatrixToolView.swift in Sources */,
+				A000000000000101 /* VectorToolView.swift in Sources */,
+				A000000000000102 /* StatsToolView.swift in Sources */,
+				A000000000000103 /* UnitsToolView.swift in Sources */,
+				A000000000000104 /* CircuitToolView.swift in Sources */,
+				A000000000000105 /* LogicToolView.swift in Sources */,
 				A000000000000037 /* GraphViewModel.swift in Sources */,
 				A000000000000038 /* NumericToolsView.swift in Sources */,
 				A000000000000039 /* NumericToolsBenchmark.swift in Sources */,

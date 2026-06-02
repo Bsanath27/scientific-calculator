@@ -1,10 +1,12 @@
 // OCREngine/OCRViewModel.swift
 // Scientific Calculator - Phase 4: OCR State Management
-// Manages the OCR pipeline: image → recognition → normalization → expression.
-// Never evaluates math — only produces expression text for the existing pipeline.
 
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
 import AppKit
+#endif
 import Combine
 
 /// OCR pipeline states
@@ -33,18 +35,16 @@ final class OCRViewModel: ObservableObject {
     @Published var recognizedExpression: String = ""
     @Published var rawLatex: String = ""
     
-    // Phase 4: Raw vs Refined selection
     @Published var rawExpression: String = ""
     @Published var refinedExpression: String = ""
     @Published var useRefinedResult: Bool = true {
         didSet {
-            // Update the editable expression when selection changes
             recognizedExpression = useRefinedResult ? refinedExpression : rawExpression
         }
     }
     
     @Published var metricsText: String = ""
-    @Published var selectedImage: NSImage? = nil
+    @Published var selectedImage: NativeImage? = nil
     @Published var confidenceScore: Double = 0.0
     @Published var isServiceAvailable: Bool = false
     
@@ -54,7 +54,6 @@ final class OCRViewModel: ObservableObject {
         checkServiceHealth()
     }
     
-    /// Check if OCR service is running
     func checkServiceHealth() {
         Task {
             let available = await ocrClient.healthCheck()
@@ -64,49 +63,41 @@ final class OCRViewModel: ObservableObject {
         }
     }
     
-    /// Open file picker for image/PDF import
     func importFile() {
+        #if canImport(AppKit)
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [
-            .png, .jpeg, .tiff, .pdf
-        ]
+        panel.allowedContentTypes = [.png, .jpeg, .tiff, .pdf]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
-        panel.message = "Select an image or PDF containing a math equation"
-        
         if panel.runModal() == .OK, let url = panel.url {
             loadFromFile(url)
         }
+        #else
+        print("Import file not yet implemented on iOS")
+        #endif
     }
     
-    /// Paste image from clipboard
     func pasteFromClipboard() {
         guard let imageData = OCRPreprocessor.fromClipboard() else {
             state = .error("No image found in clipboard")
             return
         }
-        
-        let image = NSImage(data: imageData)
-        selectedImage = image
+        selectedImage = NativeImage(data: imageData)
         recognizeImage(data: imageData)
     }
     
-    /// Recognize equation from currently loaded image
     func recognizeCurrentImage() {
         guard let image = selectedImage else {
             state = .error("No image loaded")
             return
         }
-        
         guard let imageData = OCRPreprocessor.prepareImage(image) else {
             state = .error("Could not process image")
             return
         }
-        
         recognizeImage(data: imageData)
     }
     
-    /// Clear all state
     func clear() {
         state = .idle
         recognizedExpression = ""
@@ -116,25 +107,16 @@ final class OCRViewModel: ObservableObject {
         confidenceScore = 0.0
     }
     
-    /// Verify the current expression as a mathematical identity
     func verifyCurrentExpression() {
         guard !recognizedExpression.isEmpty else { return }
-        
         let expressionToVerify = recognizedExpression
         state = .verifying
-        
         Task {
             do {
                 let isVerified = try await ocrClient.verifyEquation(expression: expressionToVerify)
-                await MainActor.run {
-                    self.state = .verified(isVerified)
-                }
+                await MainActor.run { self.state = .verified(isVerified) }
             } catch {
-                await MainActor.run {
-                    // Revert to recognized state but show error? 
-                    // Or just show error state.
-                    self.state = .error("Verification failed: \(error.localizedDescription)")
-                }
+                await MainActor.run { self.state = .error("Verification failed: \(error.localizedDescription)") }
             }
         }
     }
@@ -143,87 +125,40 @@ final class OCRViewModel: ObservableObject {
     
     private func loadFromFile(_ url: URL) {
         guard let imageData = OCRPreprocessor.loadFromFile(url) else {
-            state = .error("Could not load file: \(url.lastPathComponent)")
+            state = .error("Could not load file")
             return
         }
-        
-        // Show image preview
         if url.pathExtension.lowercased() == "pdf" {
-            selectedImage = NSImage(data: imageData)
+            selectedImage = NativeImage(data: imageData)
         } else {
-            selectedImage = NSImage(contentsOf: url)
+            #if canImport(AppKit)
+            selectedImage = NativeImage(contentsOf: url)
+            #else
+            selectedImage = NativeImage(contentsOfFile: url.path)
+            #endif
         }
-        
         recognizeImage(data: imageData)
     }
     
     private func recognizeImage(data: Data) {
         state = .loading
-        let pipelineStart = CFAbsoluteTimeGetCurrent()
-        let imageSize = data.count
-        
+        let start = CFAbsoluteTimeGetCurrent()
         Task {
             do {
-                // Step 1: OCR Recognition (on Python service)
-                let ocrResult = try await ocrClient.recognize(imageData: data)
-                
-                // Step 2: Get expression — prefer SymPy-validated canonical form
-                let normalizeStart = CFAbsoluteTimeGetCurrent()
-                let normalized: String
-                if ocrResult.validated, let canonical = ocrResult.canonicalExpression, !canonical.isEmpty {
-                    // SymPy validated — use canonical expression directly
-                    normalized = canonical
-                    #if DEBUG
-                    print("OCR: Using SymPy-validated canonical expression: \(canonical)")
-                    #endif
-                } else {
-                    // Fallback to regex-based normalizer
-                    normalized = LatexNormalizer.normalize(ocrResult.latex)
-                    #if DEBUG
-                    print("OCR: SymPy validation failed, using LatexNormalizer fallback")
-                    #endif
-                }
-                let normalizeTimeMs = (CFAbsoluteTimeGetCurrent() - normalizeStart) * 1000
-                
-                let totalTimeMs = (CFAbsoluteTimeGetCurrent() - pipelineStart) * 1000
-                
-                // Build metrics
-                let metrics = OCRMetrics(
-                    ocrTimeMs: ocrResult.processingTimeMs,
-                    imageSize: imageSize,
-                    confidenceScore: ocrResult.confidence,
-                    normalizeTimeMs: normalizeTimeMs,
-                    parseTimeMs: 0,  // Filled when user evaluates
-                    evalTimeMs: 0,
-                    totalTimeMs: totalTimeMs
-                )
+                let result = try await ocrClient.recognize(imageData: data)
+                let normalized = result.validated ? (result.canonicalExpression ?? "") : LatexNormalizer.normalize(result.latex)
+                let totalTime = (CFAbsoluteTimeGetCurrent() - start) * 1000
                 
                 await MainActor.run {
-                    self.rawLatex = ocrResult.latex
-                    self.rawExpression = ocrResult.rawExpression ?? normalized
-                    self.refinedExpression = ocrResult.refinedExpression ?? normalized
-                    
-                    // Initially use whichever variant the service considered "best" (normalized)
-                    // or respect the current toggle if user has one
+                    self.rawLatex = result.latex
+                    self.rawExpression = result.rawExpression ?? normalized
+                    self.refinedExpression = result.refinedExpression ?? normalized
                     self.recognizedExpression = self.useRefinedResult ? self.refinedExpression : self.rawExpression
-                    
-                    self.confidenceScore = ocrResult.confidence
-                    self.metricsText = metrics.displayString
+                    self.confidenceScore = result.confidence
                     self.state = .recognized(self.recognizedExpression)
-                    
-                    #if DEBUG
-                    print(metrics.consoleDescription)
-                    #endif
-                }
-                
-            } catch let error as OCRClientError {
-                await MainActor.run {
-                    self.state = .error(error.localizedDescription)
                 }
             } catch {
-                await MainActor.run {
-                    self.state = .error("OCR failed: \(error.localizedDescription)")
-                }
+                await MainActor.run { self.state = .error(error.localizedDescription) }
             }
         }
     }

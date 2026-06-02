@@ -58,7 +58,8 @@ class DashboardViewModel: ObservableObject {
                     expression: expr,
                     result: self.result,
                     timestamp: Date(),
-                    metrics: report.metrics
+                    metrics: report.metrics,
+                    steps: []
                 )
                 self.history.insert(entry, at: 0)
                 if self.history.count > 20 { self.history.removeLast() }

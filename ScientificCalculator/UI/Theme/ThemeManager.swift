@@ -20,6 +20,14 @@ struct ColorPalette {
     // Additional UI elements
     let divider: Color
     let shadow: Color
+    
+    // Physics Module Accents
+    let mechanicsBlue: Color
+    let wavesPurple: Color
+    let thermoOrange: Color
+    let emYellow: Color
+    let opticsGreen: Color
+    let modernRed: Color
 }
 
 /// Nord Color System Definitions
@@ -69,7 +77,13 @@ class ThemeManager: ObservableObject {
         textSecondary: Nord.nord4,
         accent: Nord.nord8,
         divider: Nord.nord2,
-        shadow: Color.black.opacity(0.3)
+        shadow: Color.black.opacity(0.3),
+        mechanicsBlue: Nord.nord9,
+        wavesPurple: Nord.nord15,
+        thermoOrange: Nord.nord12,
+        emYellow: Nord.nord13,
+        opticsGreen: Nord.nord14,
+        modernRed: Nord.nord11
     )
     
     private let lightPalette = ColorPalette(
@@ -85,7 +99,13 @@ class ThemeManager: ObservableObject {
         textSecondary: Nord.nord2,
         accent: Nord.nord10,
         divider: Nord.nord4,
-        shadow: Color.black.opacity(0.1)
+        shadow: Color.black.opacity(0.1),
+        mechanicsBlue: Nord.nord9,
+        wavesPurple: Nord.nord15,
+        thermoOrange: Nord.nord12,
+        emYellow: Nord.nord13,
+        opticsGreen: Nord.nord14,
+        modernRed: Nord.nord11
     )
     
     func toggleTheme() {

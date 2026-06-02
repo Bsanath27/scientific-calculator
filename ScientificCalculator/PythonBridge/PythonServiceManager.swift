@@ -7,8 +7,10 @@ import Combine
 final class PythonServiceManager: ObservableObject {
     static let shared = PythonServiceManager()
     
-    private var process: Process?
-    private var pipe: Pipe?
+    #if os(macOS)
+    private var process: Any? // Use Any to hide Process from compiler if needed, but #if should work
+    private var pipe: Any?
+    #endif
     
     @Published var isRunning = false
     @Published var serviceOutput = ""
@@ -17,43 +19,26 @@ final class PythonServiceManager: ObservableObject {
     
     private init() {}
     
-    /// Discover the Python script path dynamically (Bundle first, then project root)
     private func discoverScriptPath() -> String? {
-        // 1. Check Bundle (Production / archived app)
+        #if os(macOS)
         if let bundlePath = Bundle.main.path(forResource: "SympyService", ofType: "py") {
             return bundlePath
         }
-        
-        // 2. Dev mode: walk up from bundle to find project root
-        // In Xcode dev builds, Bundle.main is inside DerivedData.
-        // We look for PythonBridge/SympyService.py relative to common project roots.
         let fileManager = FileManager.default
-        
-        // Try SOURCE_ROOT from build settings if available
-        if let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"] {
-            let candidate = "\(sourceRoot)/PythonBridge/SympyService.py"
-            if fileManager.fileExists(atPath: candidate) { return candidate }
-        }
-        
-        // Try current working directory
-        let cwdCandidate = fileManager.currentDirectoryPath + "/PythonBridge/SympyService.py"
-        if fileManager.fileExists(atPath: cwdCandidate) { return cwdCandidate }
-        
-        // Try executable path parent directories
         if let execURL = Bundle.main.executableURL {
             var dir = execURL.deletingLastPathComponent()
-            for _ in 0..<8 { // Walk up max 8 levels
+            for _ in 0..<8 {
                 let candidate = dir.appendingPathComponent("PythonBridge/SympyService.py").path
                 if fileManager.fileExists(atPath: candidate) { return candidate }
                 dir = dir.deletingLastPathComponent()
             }
         }
-        
+        #endif
         return nil
     }
     
-    /// Discover user site-packages dynamically via python3
     private func discoverUserSitePackages() -> String? {
+        #if os(macOS)
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/python3")
         task.arguments = ["-m", "site", "--user-site"]
@@ -68,29 +53,20 @@ final class PythonServiceManager: ObservableObject {
         } catch {
             return nil
         }
+        #else
+        return nil
+        #endif
     }
     
-    /// Start the Python service if not already running
     func startService() {
+        #if os(macOS)
         guard !isRunning else { return }
+        guard let scriptPath = discoverScriptPath() else { return }
         
-        guard let scriptPath = discoverScriptPath() else {
-            print("PythonServiceManager: SympyService.py not found in Bundle or project directory")
-            return
-        }
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/usr/bin/python3")
+        proc.arguments = [scriptPath, "--port", "\(port)"]
         
-        guard FileManager.default.fileExists(atPath: scriptPath) else {
-            print("PythonServiceManager: Script not found at \(scriptPath)")
-            return
-        }
-        
-        print("PythonServiceManager: Starting service at \(scriptPath) on port \(port)")
-        
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/python3")
-        process.arguments = [scriptPath, "--port", "\(port)"]
-        
-        // Dynamically discover user site-packages for Flask/SymPy
         var env = ProcessInfo.processInfo.environment
         if let userSitePackages = discoverUserSitePackages() {
             if let existingPath = env["PYTHONPATH"] {
@@ -99,47 +75,46 @@ final class PythonServiceManager: ObservableObject {
                 env["PYTHONPATH"] = userSitePackages
             }
         }
-        process.environment = env
+        proc.environment = env
         
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = pipe
+        let p = Pipe()
+        proc.standardOutput = p
+        proc.standardError = p
         
-        self.pipe = pipe
-        self.process = process
+        self.pipe = p
+        self.process = proc
         
-        pipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
+        p.fileHandleForReading.readabilityHandler = { [weak self] handle in
             let data = handle.availableData
             if let str = String(data: data, encoding: .utf8), !str.isEmpty {
                 DispatchQueue.main.async {
                     self?.serviceOutput += str
-                    // print("PythonService: \(str.trimmingCharacters(in: .whitespacesAndNewlines))")
                 }
             }
         }
         
         do {
-            try process.run()
+            try proc.run()
             self.isRunning = true
-            print("PythonServiceManager: Service started with PID \(process.processIdentifier)")
         } catch {
-            print("PythonServiceManager: Failed to launch process: \(error)")
+            print("PythonServiceManager: \(error)")
         }
         
-        process.terminationHandler = { [weak self] _ in
+        proc.terminationHandler = { [weak self] _ in
             DispatchQueue.main.async {
                 self?.isRunning = false
-                print("PythonServiceManager: Service terminated")
             }
         }
+        #endif
     }
     
-    /// Stop the background service
     func stopService() {
-        guard let process = process, process.isRunning else { return }
-        print("PythonServiceManager: Stopping service...")
-        process.terminate()
+        #if os(macOS)
+        if let proc = process as? Process, proc.isRunning {
+            proc.terminate()
+        }
         self.process = nil
         self.pipe = nil
+        #endif
     }
 }

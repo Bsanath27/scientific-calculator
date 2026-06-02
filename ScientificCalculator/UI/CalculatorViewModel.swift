@@ -16,6 +16,20 @@ final class CalculatorViewModel: ObservableObject {
         }
     }
     @Published var result: String = ""
+    @Published var derivationSteps: [Node] = []
+    @Published var showWork: Bool = false
+    
+    // MARK: - Advanced Features (Prompt 6)
+    
+    enum ResultFormat: String, CaseIterable {
+        case decimal = "Decimal"
+        case fraction = "Fraction/Exact"
+        case symbolic = "Symbolic"
+    }
+    
+    @Published var selectedResultFormat: ResultFormat = .decimal
+    @Published var units: [String: String] = [:] // Map of token value to unit label
+    @Published var isEvaluatingSymbolic: Bool = false
     
     // MARK: - Input Handling
     
@@ -120,17 +134,27 @@ final class CalculatorViewModel: ObservableObject {
                 let valueExpr = parts[1]
                 // Name must be letters only
                 if !name.isEmpty && name.rangeOfCharacter(from: CharacterSet.letters.inverted) == nil {
-                    // Evaluate the RHS
                     let context = variableStore.evaluationContext()
-                    let report = dispatcher.evaluate(expression: valueExpr, context: context)
-                    if let val = report.result.doubleValue {
-                        DispatchQueue.main.async {
-                            self.variableStore.addVariable(name: name, value: val)
-                            self.result = "\(name) = \(val)"
-                            self.metricsText = ResultFormatter.formatMetrics(report.metrics)
+                    
+                    Task { [weak self] in
+                        guard let self = self else { return }
+                        let report = await dispatcher.evaluateAsync(expression: valueExpr, context: context)
+                        
+                        await MainActor.run {
+                            if let val = report.result.doubleValue {
+                                self.variableStore.addVariable(name: name, value: val)
+                                self.result = "\(name) = \(val)"
+                                self.metricsText = ResultFormatter.formatMetrics(report.metrics)
+                            } else if case .symbolic(let res, _, _) = report.result {
+                                // Support symbolic assignment if result is symbolic
+                                self.result = "\(name) = \(res)"
+                                self.metricsText = ResultFormatter.formatMetrics(report.metrics)
+                            } else if case .error(let msg, _) = report.result {
+                                self.result = "Error: \(msg)"
+                            }
                         }
-                        return
                     }
+                    return
                 }
             }
         }
@@ -141,27 +165,51 @@ final class CalculatorViewModel: ObservableObject {
         
         Task { [weak self] in
             guard let self = self else { return }
-            let report = await self.dispatcher.evaluateAsync(expression: expr, context: context)
             
-            await MainActor.run {
-                self.result = report.resultString
-                self.metricsText = ResultFormatter.formatMetrics(report.metrics)
+            await MainActor.run { self.isEvaluatingSymbolic = true }
+            
+            do {
+                // Collect work steps
+                let (steps, report) = try await self.dispatcher.evaluateWithWork(expression: expr, context: context)
                 
-                // Add to history
-                let entry = HistoryEntry(
-                    expression: expr,
-                    result: self.result,
-                    timestamp: Date(),
-                    metrics: report.metrics
-                )
-                self.history.insert(entry, at: 0)
-                
-                // Keep history limited
-                if self.history.count > 50 {
-                    self.history = Array(self.history.prefix(50))
+                await MainActor.run {
+                    self.isEvaluatingSymbolic = false
+                    self.derivationSteps = steps
+                    self.result = report.resultString
+                    self.metricsText = ResultFormatter.formatMetrics(report.metrics)
+                    
+                    // Add to history
+                    let entry = HistoryEntry(
+                        expression: expr,
+                        result: self.result,
+                        timestamp: Date(),
+                        metrics: report.metrics,
+                        steps: steps
+                    )
+                    self.history.insert(entry, at: 0)
+                    
+                    // Keep history limited
+                    if self.history.count > 50 {
+                        self.history = Array(self.history.prefix(50))
+                    }
+                }
+            } catch is CancellationError {
+                await MainActor.run { 
+                    self.isEvaluatingSymbolic = false 
+                    // No need to show error for deliberate cancellation
+                }
+            } catch {
+                await MainActor.run {
+                    self.isEvaluatingSymbolic = false
+                    self.result = "Error: \(error.localizedDescription)"
                 }
             }
         }
+    }
+    
+    /// Trigger "Show Work" for the current result
+    func toggleWork() {
+        showWork.toggle()
     }
     
     /// Insert text into expression
@@ -229,6 +277,23 @@ final class CalculatorViewModel: ObservableObject {
     func loadFromHistory(_ entry: HistoryEntry) {
         expression = entry.expression
     }
+    
+    // MARK: - Prompt 6: Interactive Features
+    
+    func cycleResultFormat() {
+        let all = ResultFormat.allCases
+        if let idx = all.firstIndex(of: selectedResultFormat) {
+            selectedResultFormat = all[(idx + 1) % all.count]
+            // Re-evaluate to get specific format if needed
+            evaluate()
+        }
+    }
+    
+    func attachUnit(to token: String, unit: String) {
+        units[token] = unit
+        // We could also append it to the expression string if we want it to be part of the math
+        // But the prompt says "ViewModel tracks unit alongside value".
+    }
 }
 
 /// History entry model
@@ -238,6 +303,7 @@ struct HistoryEntry: Identifiable, Equatable, Codable {
     let result: String
     let timestamp: Date
     let metrics: EvaluationMetrics
+    let steps: [Node]
     
     static func == (lhs: HistoryEntry, rhs: HistoryEntry) -> Bool {
         lhs.id == rhs.id

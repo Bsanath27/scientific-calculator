@@ -80,10 +80,14 @@ class NotebookViewModel: ObservableObject {
         let input = currentInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !input.isEmpty else { return }
         
-        let newBlock = createBlock(from: input)
-        addBlock(newBlock)
-        
-        currentInput = "" // Clear input
+        Task { [weak self] in
+            guard let self = self else { return }
+            let newBlock = await createBlock(from: input)
+            await MainActor.run {
+                self.addBlock(newBlock)
+                self.currentInput = "" // Clear input
+            }
+        }
     }
     
     func updateBlock(id: UUID, newContent: String) {
@@ -92,21 +96,27 @@ class NotebookViewModel: ObservableObject {
             return
         }
         
-        let updatedBlock = createBlock(from: newContent)
-        notebooks[notebookIndex].blocks[blockIndex].type = updatedBlock.type
-        
-        // Re-evaluate entire notebook to update dependencies
-        rebuildVariableContext()
-        saveNotebooks()
+        Task { [weak self] in
+            guard let self = self else { return }
+            let updatedBlock = await createBlock(from: newContent)
+            
+            await MainActor.run {
+                self.notebooks[notebookIndex].blocks[blockIndex].type = updatedBlock.type
+                // Re-evaluate entire notebook to update dependencies
+                // Note: Rebuilding context might also need to be async if it re-evaluates
+                self.rebuildVariableContext()
+                self.saveNotebooks()
+            }
+        }
     }
     
-    private func createBlock(from input: String) -> NotebookBlock {
+    private func createBlock(from input: String) async -> NotebookBlock {
         if input.starts(with: "#") {
             return NotebookBlock(type: .text(content: input))
         } else if input.contains("=") && !input.starts(with: "==") {
-            return processVariableDefinition(input)
+            return await processVariableDefinition(input)
         } else {
-            return processCalculation(input)
+            return await processCalculation(input)
         }
     }
     
@@ -118,7 +128,7 @@ class NotebookViewModel: ObservableObject {
     
     // MARK: - internal Logic
     
-    private func processVariableDefinition(_ input: String) -> NotebookBlock {
+    private func processVariableDefinition(_ input: String) async -> NotebookBlock {
         // More robust parsing: handle "let x = 10", "x = 10", "x=10"
         let cleaned = input.replacingOccurrences(of: "let ", with: "")
         let parts = cleaned.split(separator: "=", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
@@ -132,12 +142,12 @@ class NotebookViewModel: ObservableObject {
                 return NotebookBlock(type: .error(message: "Invalid variable name: \(name)"))
             }
             
-            let result = evaluate(expression)
+            let result = await evaluate(expression)
             
             if !result.starts(with: "Error") {
                 // Update local context for immediate use in creation
                 if let doubleVal = Double(result) {
-                    variables[name] = doubleVal
+                    await MainActor.run { variables[name] = doubleVal }
                 }
                 return NotebookBlock(type: .variableDefinition(name: name, value: result, expression: expression))
             } else {
@@ -148,16 +158,16 @@ class NotebookViewModel: ObservableObject {
         }
     }
     
-    private func processCalculation(_ input: String) -> NotebookBlock {
-        let result = evaluate(input)
+    private func processCalculation(_ input: String) async -> NotebookBlock {
+        let result = await evaluate(input)
         return NotebookBlock(type: .calculation(expression: input, result: result))
     }
     
     // MARK: - Engine Interaction
     
-    private func evaluate(_ expression: String) -> String {
+    private func evaluate(_ expression: String) async -> String {
         let context = EvaluationContext(variableBindings: variables)
-        let report = dispatcher.evaluate(expression: expression, context: context)
+        let report = await dispatcher.evaluateAsync(expression: expression, context: context)
         return report.resultString
     }
     

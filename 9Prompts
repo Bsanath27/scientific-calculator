@@ -1,0 +1,151 @@
+Prompt 1 — Foundation & Identity
+What it changes: ScientificCalculatorApp.swift, AppNavigationView.swift, ThemeManager.swift, project.pbxproj
+What it does:
+
+Rename the app bundle display name to "Physica" in Info.plist / GenerateInfoPlist settings
+Replace the toolbar-driven navigation in AppNavigationView.swift with a 5-tab TabView: Calculate, Physics Lab, Tools, Workspace, Explore. Each tab is a placeholder Text("Coming in Prompt X") view for now — the navigation shell must be complete and compilable before anything else
+Add the 5 tab icons and labels: function (Calc), flask.fill (Lab), wrench.and.screwdriver (Tools), doc.text (Workspace), safari (Explore)
+Update ThemeManager.swift to add 6 module accent colors as static properties: .mechanicsBlue, .wavesPurple, .thermoOrange, .emYellow, .opticsGreen, .modernRed — every subsequent prompt uses these
+Add NavigationStack + typed AppRoute enum covering every destination in the app so the command palette (Prompt 9) can deep-link anywhere
+Update project.pbxproj to add the PhysicsLab group with all physics files already in the project properly organized
+
+Why first: Everything else imports AppRoute. The tab structure must exist before any tab's content can be written. ThemeManager colors are used in every subsequent file.
+Estimated output: ~400 lines across 3 files.
+
+Prompt 2 — Physics Foundation Layer
+What it changes: PhysicsCoordinateSystem.swift, PhysicsModule.swift, PhysicsScenario.swift, PhysicsParameter.swift, PhysicsEquationLibrary.swift
+What it does:
+
+Complete PhysicsCoordinateSystem.swift with the anti-gravity fix: toScreen(), toWorld(), make(for:canvasSize:) factory, WorldPoint custom type
+Complete PhysicsModule.swift with all 6 modules as static constants, each with their color, icon, scenario list, and difficulty
+Complete PhysicsScenario.swift for all 36 scenarios across 6 modules, each with rendererType (.canvas2D or .realityKit3D), parameters list, equations list, derived outputs, curriculum tags, and real-world presets
+Complete PhysicsParameter.swift with all parameters for every scenario including physically accurate defaults, ranges, and step sizes
+Complete PhysicsEquationLibrary.swift with all equations for all 6 modules — each with latex, plainText, variables, solveFor, derivationSteps, scenarioLinks. Implement solve(for:given:) analytically for every equation
+
+Why second: PhysicsSimulator (Prompt 3) depends on PhysicsScenario and PhysicsParameter. PhysicsViewModel (Prompt 4) depends on all of these. Nothing in physics can be written until this data layer exists.
+Estimated output: ~900 lines across 5 files. This is the largest prompt. Tell your agent to be thorough and not to stub anything — every scenario, every equation, every parameter must be fully defined here.
+
+Prompt 3 — Physics Simulation Engine
+What it changes: PhysicsSimulator.swift, PhysicsSimulatorTests.swift
+What it does:
+
+Complete PhysicsSimulator.swift: SimulationFrame, EnergyState, FrameAnnotation, all integration methods (analytical for projectile/SHM/decay/RC, RK4 for pendulum/drag/Lorentz, particle system for Ideal Gas, field sampling for EM)
+Implement auto-detection of key events (peak, landing, turning points, τ = RC, terminal velocity) that become FrameAnnotation entries
+FBDState struct: computed force vectors (gravity, normal, tension, drag, spring, net) for any scenario frame — this powers Prompt 5's FBD overlay
+FluidSimulator sub-struct: buoyancy force, displaced volume, net force for Archimedes scenario. Terminal velocity RK4 for drag scenario
+GravityFieldSampler: given N point masses at positions, sample field strength on a grid of WorldPoints, return field arrows
+Complete PhysicsSimulatorTests.swift: all textbook verification tests
+
+Why third: PhysicsViewModel (Prompt 4) calls the simulator. The simulator must be fully implemented and tested before the ViewModel wraps it.
+Estimated output: ~800 lines across 2 files.
+
+Prompt 4 — Physics View Model & Lab View
+What it changes: PhysicsViewModel.swift, PhysicsLabView.swift, PhysicsCanvasRenderer.swift
+What it does:
+
+Complete PhysicsViewModel.swift: all @Published properties, selectScenario(), updateParameter() with 250ms debounce, Timer-based playback with speed multiplier, placeAnnotationPin(), exportToVariableStore(), loadPreset(), activateComparisonMode(), exportCanvasAsImage()
+Complete PhysicsCanvasRenderer.swift: ALL rendering functions using CoordinateSystem.toScreen(). Every renderer: renderProjectile, renderPendulum, renderSHM, renderWaveString, renderWaveSuperposition, renderDoppler, renderIdealGas, renderRC, renderSnell, renderLensRayDiagram, renderRadioactiveDecay, renderBohrModel, renderBuoyancy, renderTerminalVelocity, renderGravityField
+Complete PhysicsLabView.swift: three-column iPad/macOS layout, bottom-sheet iPhone layout using presentationDetents, module/scenario browser, simulation canvas with GeometryReader + Canvas, playback controls, scrubber, comparison mode toggle, FBD toggle, energy panel
+Wire PhysicsLabView into Tab 2 in AppNavigationView.swift (replace placeholder)
+
+Why fourth: Renderer depends on Simulator (Prompt 3). ViewModel wraps Simulator. View wraps ViewModel. This is the natural MVVM dependency chain.
+Estimated output: ~1,100 lines across 3 files. Tell your agent: "Do not stub any renderer. Write every rendering function completely."
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Prompt 5 — New Physics Features (FBD, Fluid, Gravity, USDZ)
+What it creates/changes: FBDOverlayView.swift (new), FluidSimulator.swift (new), GravityFieldView.swift (new), USDZModelLibrary.swift (new), ModelImportView.swift (new), updates to PhysicsLabView.swift
+What it does:
+
+FBDOverlayView.swift: Canvas overlay that reads FBDState from PhysicsViewModel and draws all force vectors. Toggle button added to PhysicsLabView canvas toolbar. Each force arrow tappable to show magnitude popover
+FluidSimulator.swift: Buoyancy and drag scenarios fully implemented as PhysicsSimulator extensions. Renderers for both already handled in Prompt 4's PhysicsCanvasRenderer
+GravityFieldView.swift: Interactive canvas where user places mass sources by tapping, field sampled and rendered as colored arrows on grid, test particle released via drag gesture, presets for binary star / hollow planet / Lagrange points. Uses GravityFieldSampler from Prompt 3
+USDZModelLibrary.swift: Enum of 8 bundled USDZ model names + metadata (mass, friction, restitution defaults, compatible scenarios). loadModel(named:) method using RealityKit.loadModelAsync
+ModelImportView.swift: File importer sheet (.fileImporter modifier accepting .usdz), physics properties assignment form, scenario picker, "Load into Lab" button
+Update PhysicsLabView.swift: Add USDZ model picker when scenario has .realityKit3D renderer type, show RealityKit RealityView instead of Canvas for 3D scenarios
+
+Why fifth: Depends on the full PhysicsLabView from Prompt 4 to know exactly where to insert the toggle, overlay, and import flow.
+Estimated output: ~700 lines across 5 files.
+
+Prompt 6 — Calculator Tab Rebuild
+What it changes: ContentView.swift, CalculatorViewModel.swift, ExpressionInputView.swift, CalculatorButton.swift, BasicKeypad.swift, ScientificKeypad.swift, KeypadContext.swift (new), CalculatorButton+Highlight.swift (new)
+What it does:
+
+Rebuild ContentView.swift as the Calculate tab content — not the app root anymore (that's AppNavigationView from Prompt 1). Multi-line expression editor, color-coded token display, result format cycling, history swipe gesture
+Integrate KeypadContext.swift and CalculatorButton+Highlight.swift (the files already generated): wire KeypadContextEngine as @StateObject, drive it from CalculatorViewModel.expression, pass via environment
+Update every button in BasicKeypad.swift and ScientificKeypad.swift to use HighlightedButton with correct ButtonCategory
+Add "Show Work" (Step-by-Step CAS) button to result area — calls SymbolicEngine via existing PythonClient
+Add dimensional analysis: tap-and-hold any number token in display to attach a unit label. CalculatorViewModel tracks unit alongside value
+Add floating action buttons: Ask Physica (💬), OCR (📷), Save to Workspace (⬇) — replacing old toolbar buttons
+iPad layout: side-by-side scientific + basic keypad, always visible
+
+Why sixth: Calculate tab can be rebuilt independently. It doesn't depend on Physics Lab. It does depend on the tab shell from Prompt 1.
+Estimated output: ~600 lines across 8 files.
+
+Prompt 7 — Tools Tab + Circuit Simulator
+What it changes: NumericToolsView.swift (major update), creates CircuitSimulator.swift (new), CircuitView.swift (new), CircuitViewModel.swift (new), GraphView.swift (annotation mode update)
+What it does:
+
+Rebuild NumericToolsView.swift as the Tools tab with horizontally scrollable chip row on iPhone (Matrix · Vector · Stats · Units · Graph · Circuit), two-column split on iPad
+CircuitSimulator.swift: Nodal analysis engine (modified nodal analysis / MNA), supports R, C, L, V source, I source, switch. solve(circuit:) -> CircuitSolution with node voltages and branch currents
+CircuitViewModel.swift: Canvas state (placed components, wires, grid), component placement logic, drag-to-wire, double-tap to edit value, analyzeCircuit() calls CircuitSimulator, bridgeToPhysicsLab() detects RC/RL/LC and triggers navigation to Physics Lab via AppRoute
+CircuitView.swift: Grid canvas, component palette sidebar, live current animation (animated dots on wires proportional to current magnitude), voltage gradient coloring, oscilloscope inset view for probe points
+Update GraphView.swift: annotation mode — tap on plotted curve to place point, show coordinates + slope (numerical differentiation) + area under curve (numerical integration from x=0 to that point)
+
+Why seventh: Tools tab is self-contained. Circuit simulator has a one-way bridge TO Physics Lab (via AppRoute) but no dependencies coming back.
+Estimated output: ~900 lines across 5 files.
+
+Prompt 8 — Workspace Tab + Explore Tab
+What it changes: DashboardView.swift → renamed/rebuilt as WorkspaceView.swift, DashboardViewModel.swift → WorkspaceViewModel.swift, deletes DashboardPlotCard.swift / DashboardConstantsCard.swift / DashboardUnitConverterCard.swift (content absorbed), creates ExploreView.swift (new), ModelLibraryView.swift (new), GuidedLessonView.swift (new)
+What it does:
+
+WorkspaceView.swift: Scrollable session timeline. Variables panel pinned at top. Quick plot card. Constants card. Notebook feed below with auto-tag filter bar. Swipe-left-to-delete, swipe-right-to-pin on each entry. Session naming. "Export Lab Report PDF" — generates PDF using existing Notebook entries + simulation thumbnails
+WorkspaceViewModel.swift: manages session state, tag filtering, PDF generation
+Delete the three Dashboard card files — their functionality lives directly in WorkspaceView as inline components now, not separate files
+ExploreView.swift: "Today's Experiment" featured simulation card at top. Model Library grid (bundled + downloaded USDZ). Guided Lessons list filtered by curriculum tag (AP / IB / University). Future Challenges section (placeholder with "Coming Soon" state)
+ModelLibraryView.swift: Grid of USDZ model cards with preview thumbnail, physics property badges, compatible scenario label, download/use button
+GuidedLessonView.swift: Lesson detail — scenario card, equation, solve step, simulate button, quiz question. Tapping "Simulate" navigates to Physics Lab via AppRoute with scenario and parameters pre-loaded
+
+Why eighth: Workspace and Explore depend on AppRoute (Prompt 1), PhysicsScenario (Prompt 2), USDZModelLibrary (Prompt 5), and NotebookModel (existing). All dependencies are satisfied by now.
+Estimated output: ~750 lines across 6 files.
+
+Prompt 9 — Polish, Command Palette, Integration Glue
+What it changes: QuickActionPalette.swift (new, already designed), AppNavigationView.swift (final wiring), PhysicsReference.swift (renamed integration), VariableStore.swift (physics import method), ScientificCalculatorApp.swift (environment injection), all project.pbxproj group additions for new files
+What it does:
+
+Wire QuickActionPaletteState at the app root in ScientificCalculatorApp.swift — @StateObject, passed via .environmentObject, .quickActionPalette() modifier on root view
+Wire all onNavigate callbacks in AppNavigationView.swift — every destination from every tab routes through AppRoute, command palette navigates correctly
+Wire physicsLabSelectScenario notification in PhysicsLabView
+Update PhysicsReference.swift to read from PhysicsEquationLibrary instead of static data, add "Simulate This →" button on each equation, rename to "Equation Library" in UI
+Add importFromPhysics(_:scenarioName:) to VariableStore.swift
+Add macOS-specific: menu bar items (File, Edit, Simulate, Window menus), keyboard shortcuts (⌘K, ⌘G, ⌘P, ⌘S, ⌘E, Space), multi-window support for Physics Lab via @Environment(\.openWindow)
+Add iPhone pull-down gesture to open command palette on the Calculate display
+Update project.pbxproj: add every new file from Prompts 5–8 to the correct groups and Sources build phase
+Final pass: confirm all @EnvironmentObject injections are complete, all AppRoute cases handled, no placeholder views remaining
+
+Why last: This prompt only writes glue. It can only be written once every other component exists. Trying to write integration code before the components exist causes your agent to hallucinate the API signatures.
+Estimated output: ~500 lines across 8 files.
+
+Summary Table
+#PromptFiles TouchedNew FilesExisting ChangesComplexity1Foundation & Identity404Low2Physics Data Layer505High3Physics Simulator202High4Physics Lab View303Very High5FBD + Fluid + Gravity + USDZ551High6Calculator Tab826Medium7Tools + Circuit532High8Workspace + Explore642Medium9Polish + Glue817MediumTotal~46 file touches~15 new files~31 edits
+
+
+
+
+
+
+
+
+
+
+
+
+before every pdrompt:
+
+1. Do not stub or skip any function. Write every method completely.
+2. Every physics coordinate must pass through CoordinateSystem.toScreen() — no raw world coordinates on canvas.
+3. All new files must be added to project.pbxproj under the correct group. Show the PBXBuildFile and PBXFileReference entries.
+4. Use ThemeManager module colors: .mechanicsBlue, .wavesPurple, .thermoOrange, .emYellow, .opticsGreen, .modernRed.
+5. Navigation uses AppRoute enum from Prompt 1. Never hardcode navigation destinations.
+6. @EnvironmentObject dependencies: KeypadContextEngine, QuickActionPaletteState, VariableStore — never instantiate these locally.
+7. After each file, confirm it compiles against the existing project structure.

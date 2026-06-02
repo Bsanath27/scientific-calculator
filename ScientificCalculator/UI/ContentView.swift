@@ -14,79 +14,29 @@ struct ContentView: View {
     @State private var showVariables = false
     @State private var showPhysics = false
     @State private var isScientificOpen = false // Drawer state
+    @State private var showHistory = false
+    
+    @EnvironmentObject var keypadContext: KeypadContextEngine
+    @EnvironmentObject var palette: QuickActionPaletteState
     
     var body: some View {
         GeometryReader { geometry in
+            let isCompact = DeviceLayout.isCompact(width: geometry.size.width)
+            
             ZStack {
                 themeManager.current.background
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // MARK: - Header (Toolbar)
-                    HStack {
-                        Text("Scientific Calculator")
-                            .font(.headline)
-                            .foregroundColor(themeManager.current.textPrimary)
-                        
-                        Spacer()
-                        
-                        // Theme Toggle
-                        Button(action: { themeManager.toggleTheme() }) {
-                            Image(systemName: themeManager.isDarkMode ? "sun.max.fill" : "moon.fill")
-                                .foregroundColor(themeManager.current.textSecondary)
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
-                        
-                        // Feature Toggles
-                        HStack(spacing: 12) {
-                            ToolButton(icon: "atom", label: "Physics", action: { showPhysics = true }, theme: themeManager)
-                            ToolButton(icon: "textformat.abc", label: "Variables", action: { showVariables = true }, theme: themeManager)
-                            ToolButton(icon: "text.bubble", label: "Assistant", action: { showAssistant = true }, theme: themeManager)
-                            ToolButton(icon: "doc.text.viewfinder", label: "OCR", action: { showOCR = true }, theme: themeManager)
-                            ToolButton(icon: "wrench.and.screwdriver", label: "Tools", action: { showTools = true }, theme: themeManager)
-                            
-                            // Save to Notebook
-                            Button(action: saveToNotebook) {
-                                Image(systemName: "square.and.arrow.down")
-                                    .foregroundColor(themeManager.current.accent)
-                            }
-                            .help("Save to Notebook")
-                        }
-                    }
-                    .padding()
-                    .background(themeManager.current.displayBackground)
-                    
-                    // MARK: - Display Area
-                    VStack(alignment: .trailing, spacing: 8) {
-                        // History (Last entry)
-                        if let last = viewModel.history.first {
-                            Text(last.expression + " = " + last.result)
-                                .font(.caption)
-                                .foregroundColor(themeManager.current.textSecondary)
-                                .lineLimit(1)
-                                .padding(.horizontal)
-                        } else {
-                            Text(" ") // Spacer
-                                .font(.caption)
-                        }
-                        
-                        // Main Input with Parenthesis Highlighting
+                    // MARK: - Display Area (Prompt 6: Multi-line, Tokenized)
+                    VStack(alignment: .trailing, spacing: 0) {
                         ExpressionInputView(
                             expression: $viewModel.expression,
-                            onSubmit: { viewModel.evaluate() }
+                            onSubmit: { viewModel.evaluate() },
+                            viewModel: viewModel
                         )
-                        
-                        // Result (Preview)
-                        if !viewModel.result.isEmpty {
-                            Text("= " + viewModel.result)
-                                .font(.title2)
-                                .fontWeight(.medium)
-                                .foregroundColor(themeManager.current.accent)
-                                .padding(.horizontal)
-                        }
+                        .padding(.top, 10)
                     }
-                    .padding(.vertical, 20)
                     .background(themeManager.current.displayBackground)
                     .overlay(
                         Rectangle()
@@ -96,56 +46,126 @@ struct ContentView: View {
                     )
                     
                     // MARK: - Keypad Area
-                    HStack(spacing: 0) {
-                        // Scientific Drawer (Visible on large screens OR toggled)
-                        if isScientificOpen || geometry.size.width > 600 {
-                            ScientificKeypad(
+                    ZStack(alignment: .leading) {
+                        if !isCompact {
+                            // iPad: Side-by-side Scientific + Basic
+                            HStack(spacing: 0) {
+                                ScientificKeypad(
+                                    theme: themeManager,
+                                    onKeyPress: { text in viewModel.handleInput(text) }
+                                )
+                                .frame(width: geometry.size.width * 0.45)
+                                
+                                Divider()
+                                    .background(themeManager.current.divider)
+                                
+                                BasicKeypad(
+                                    theme: themeManager,
+                                    onKeyPress: { text in viewModel.handleInput(text) },
+                                    onEvaluate: { viewModel.evaluate() },
+                                    onClear: { viewModel.clear() },
+                                    onDelete: {
+                                        if !viewModel.expression.isEmpty {
+                                            viewModel.expression.removeLast()
+                                        }
+                                    }
+                                )
+                            }
+                        } else {
+                            // iPhone: Basic Keypad + Drawer for Scientific
+                            BasicKeypad(
                                 theme: themeManager,
-                                onKeyPress: { text in
-                                    viewModel.expression += text
+                                onKeyPress: { text in viewModel.handleInput(text) },
+                                onEvaluate: { viewModel.evaluate() },
+                                onClear: { viewModel.clear() },
+                                onDelete: {
+                                    if !viewModel.expression.isEmpty {
+                                        viewModel.expression.removeLast()
+                                    }
                                 }
                             )
-                            .transition(.move(edge: .leading))
-                            .frame(maxWidth: 300)
+                            .blur(radius: isScientificOpen ? 3 : 0)
                             
-                            Divider()
-                                .background(themeManager.current.divider)
-                        }
-                        
-                        // Basic Keypad (Always Visible)
-                        BasicKeypad(
-                            theme: themeManager,
-                            onKeyPress: { text in viewModel.handleInput(text) },
-                            onEvaluate: { viewModel.evaluate() },
-                            onClear: { viewModel.clear() },
-                            onDelete: {
-                                if !viewModel.expression.isEmpty {
-                                    viewModel.expression.removeLast()
-                                }
+                            if isScientificOpen {
+                                Color.black.opacity(0.3)
+                                    .ignoresSafeArea()
+                                    .onTapGesture { withAnimation { isScientificOpen = false } }
+                                    .transition(.opacity)
+                                
+                                ScientificKeypad(
+                                    theme: themeManager,
+                                    onKeyPress: { text in viewModel.handleInput(text) }
+                                )
+                                .frame(width: geometry.size.width * 0.85)
+                                .background(themeManager.current.background)
+                                .cornerRadius(16, corners: [.topRight, .bottomRight])
+                                .shadow(radius: 10)
+                                .transition(.move(edge: .leading))
+                                .zIndex(1)
                             }
-                        )
+                        }
                     }
                     .frame(maxHeight: .infinity)
+                    
+                    // Bottom Padding for Floating Tab Bar (Prompt 5 fix)
+                    if isCompact {
+                        Spacer()
+                            .frame(height: DeviceLayout.tabBarPadding(width: geometry.size.width))
+                    }
                 }
                 
-                // Drawer Toggle (for small screens)
-                if geometry.size.width <= 600 {
-                    Button(action: { withAnimation { isScientificOpen.toggle() } }) {
-                        Image(systemName: isScientificOpen ? "chevron.left" : "function")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(themeManager.current.accent)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
+                // MARK: - Floating Action Buttons (Prompt 6)
+                VStack(spacing: 16) {
+                    Spacer()
+                    
+                    // Ask Physica
+                    FloatingActionButton(icon: "sparkles.bubble.fill", label: "Ask Physica", color: themeManager.current.opticsGreen) {
+                        showAssistant = true
                     }
-                    .padding()
-                    .position(x: 40, y: geometry.size.height - 40)
+                    
+                    // OCR
+                    FloatingActionButton(icon: "camera.viewfinder", label: "OCR Scan", color: themeManager.current.mechanicsBlue) {
+                        showOCR = true
+                    }
+                    
+                    // Save to Workspace
+                    FloatingActionButton(icon: "arrow.down.doc.fill", label: "Save", color: themeManager.current.accent) {
+                        saveToNotebook()
+                    }
+                    
+                    // Scientific Toggle (iPhone only)
+                    if isCompact {
+                        Button(action: { withAnimation { isScientificOpen.toggle() } }) {
+                            Image(systemName: isScientificOpen ? "xmark" : "function")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 56, height: 56)
+                                .background(themeManager.current.accent)
+                                .clipShape(Circle())
+                                .shadow(color: themeManager.current.accent.opacity(0.4), radius: 8, x: 0, y: 4)
+                        }
+                        .padding(.top, 8)
+                    }
                 }
+                .padding(.trailing, 16)
+                .padding(.bottom, isCompact ? DeviceLayout.tabBarPadding(width: geometry.size.width) + 20 : 20)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
         }
-        .frame(minWidth: 400, minHeight: 600)
+        .animation(.spring(), value: showHistory)
         .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
+        .onChange(of: viewModel.expression) { _, newVal in
+            keypadContext.update(expression: newVal)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("InsertExpression"))) { note in
+            if let expr = note.object as? String {
+                viewModel.insertText(expr)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SelectPhysicsScenario"))) { _ in
+            // When a scenario is selected, we might want to close sheets or triggers
+            showPhysics = false
+        }
         // Sheets
         .sheet(isPresented: $showTools) { NumericToolsView() }
         .sheet(isPresented: $showOCR) {
@@ -164,12 +184,12 @@ struct ContentView: View {
             VariablesPanel(viewModel: viewModel)
         }
         .sheet(isPresented: $showPhysics) {
-            PhysicsReference { value in
-                viewModel.insertText(value)
-            }
+            PhysicsReference()
         }
     }
-    
+}
+
+extension ContentView {
     private func saveToNotebook() {
         guard !viewModel.expression.isEmpty else { return }
         
@@ -191,23 +211,75 @@ struct ContentView: View {
 struct ToolButton: View {
     let icon: String
     let label: String
+    var compact: Bool = false
     let action: () -> Void
     let theme: ThemeManager
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 2) {
+            VStack(spacing: compact ? 1 : 2) {
                 Image(systemName: icon)
-                    .font(.system(size: 16))
-                Text(label)
-                    .font(.caption2)
+                    .font(.system(size: compact ? 14 : 16))
+                if !compact {
+                    Text(label)
+                        .font(.caption2)
+                }
             }
             .foregroundColor(theme.current.textSecondary)
-            .padding(6)
+            .padding(compact ? 4 : 6)
             .background(theme.current.background)
             .cornerRadius(8)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
+    }
+}
+
+// MARK: - Prompt 6: Components
+
+struct FloatingActionButton: View {
+    let icon: String
+    let label: String
+    let color: Color
+    let action: () -> Void
+    
+    @State private var isExpanded = false
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            if isExpanded {
+                Text(label)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
+            
+            Button(action: {
+                action()
+                // Auto-collapse after action
+                withAnimation { isExpanded = false }
+            }) {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 48, height: 48)
+                    .background(color)
+                    .clipShape(Circle())
+                    .shadow(color: color.opacity(0.4), radius: 6, x: 0, y: 3)
+            }
+        }
+        .padding(4)
+        .background(isExpanded ? color.opacity(0.8) : Color.clear)
+        .cornerRadius(28)
+        .onHover { hovering in
+            withAnimation(.spring(response: 0.3)) {
+                isExpanded = hovering
+            }
+        }
+        // Handle touch-based expansion if on iOS
+        .onLongPressGesture(minimumDuration: 0.1) {
+            withAnimation { isExpanded.toggle() }
+        }
     }
 }
 

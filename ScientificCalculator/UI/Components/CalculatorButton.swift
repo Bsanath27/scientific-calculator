@@ -3,34 +3,32 @@
 
 import SwiftUI
 
+/// Base button component for all keypad interactions.
 struct CalculatorButton: View {
     let label: String
     let color: Color
     let textColor: Color
-    var width: CGFloat = 60
-    var height: CGFloat = 60
     var isDoubleWidth: Bool = false
     let action: () -> Void
     
-    // Environment theme (passed down or accessed via shared state)
-    // For simplicity in this component, we rely on the color passed in.
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 24, weight: .medium, design: .rounded))
+                .font(.system(size: 20, weight: .medium, design: .rounded))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
                 .foregroundColor(textColor)
-                .frame(maxWidth: .infinity, maxHeight: .infinity) // Responsive
-                .aspectRatio(isDoubleWidth ? 2.1 : 1, contentMode: .fit) // Maintain shape
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(color)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)) // Modern shape
-                .shadow(color: Color.black.opacity(0.15), radius: 2, x: 0, y: 2)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel(label)
     }
 }
 
-// Button Press Animation
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

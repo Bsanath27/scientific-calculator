@@ -58,4 +58,6 @@ extension EvaluationMetrics {
         ocrTimeMs: nil,
         ocrConfidence: nil
     )
+    
+    static let empty = zero
 }

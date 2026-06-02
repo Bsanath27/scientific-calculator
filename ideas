@@ -4,3 +4,7 @@ add formula book (math,physics)
 calculator clipboard to save only specific calculations
 
 playground workshop mode where user can simulate scenarios by changing variables and defining them(useful for physics)
+
+Can I build a small physics engine inside the calculator? This should be simple maybe start with car velocity problem or boat upstream downstream
+
+set up markers and distance graph so we can calculate laps of particle rechitn point from origin

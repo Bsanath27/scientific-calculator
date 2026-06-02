@@ -98,18 +98,18 @@ final class AssistantViewModel: ObservableObject {
         let translationMs = translationTimeMs
         let confidence = previewConfidence
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        Task { [weak self] in
             guard let self = self else { return }
             
             // Set mode based on operation
             if operation != .evaluate {
-                self.dispatcher.mode = .symbolic
+                await MainActor.run { self.dispatcher.mode = .symbolic }
             }
             
-            let report = self.dispatcher.evaluate(expression: expr)
+            let report = await self.dispatcher.evaluateAsync(expression: expr)
             
             // Reset mode
-            self.dispatcher.mode = .numeric
+            await MainActor.run { self.dispatcher.mode = .numeric }
             
             let metrics = AssistantMetrics(
                 translationTimeMs: translationMs,
@@ -127,7 +127,7 @@ final class AssistantViewModel: ObservableObject {
                 metrics: metrics
             )
             
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.messages.append(response)
                 self.lastMetrics = metrics
                 self.isProcessing = false
@@ -145,7 +145,7 @@ final class AssistantViewModel: ObservableObject {
         inputText = ""
         isProcessing = true
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        Task { [weak self] in
             guard let self = self else { return }
             
             let start = CFAbsoluteTimeGetCurrent()
@@ -153,14 +153,14 @@ final class AssistantViewModel: ObservableObject {
             let translationMs = (CFAbsoluteTimeGetCurrent() - start) * 1000
             let confidence = AssistantMetrics.confidence(for: translation)
             
-            let response = self.processTranslation(
+            let response = await self.processTranslation(
                 translation,
                 originalInput: text,
                 translationMs: translationMs,
                 confidence: confidence
             )
             
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.messages.append(response)
                 self.isProcessing = false
             }
@@ -195,7 +195,7 @@ final class AssistantViewModel: ObservableObject {
         originalInput: String,
         translationMs: Double,
         confidence: Double
-    ) -> ChatMessage {
+    ) async -> ChatMessage {
         let expr = translation.expression
         
         guard !expr.isEmpty else {
@@ -204,11 +204,11 @@ final class AssistantViewModel: ObservableObject {
         
         // Set mode for symbolic operations
         if translation.operation != .evaluate {
-            dispatcher.mode = .symbolic
+            await MainActor.run { dispatcher.mode = .symbolic }
         }
         
-        let report = dispatcher.evaluate(expression: expr)
-        dispatcher.mode = .numeric
+        let report = await dispatcher.evaluateAsync(expression: expr)
+        await MainActor.run { dispatcher.mode = .numeric }
         
         let metrics = AssistantMetrics(
             translationTimeMs: translationMs,

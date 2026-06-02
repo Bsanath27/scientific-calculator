@@ -65,15 +65,17 @@ final class Dispatcher {
             var result = currentEngine.evaluate(ast: ast, context: context)
             var opType = mode == .numeric ? "numeric" : "symbolic"
             
-            // Fallback to Symbolic Engine for equations or undefined variables,
-            // based on structured error issues rather than fragile string matching.
-            if case .error(let msg, let issue) = result, mode == .numeric {
+            // Fallback to Symbolic Engine for equations or undefined variables.
+            // In the synchronous path, we can ONLY fallback if the engine is synchronous.
+            // SymbolicEngine is always async, so we return the error/issue to the caller
+            // so they can decide to call evaluateAsync.
+            if case .error(_, let issue) = result, mode == .numeric {
                 if issue == .cannotEvaluateEquality || issue == .undefinedVariable || issue == .symbolicComputationRequired {
                     #if DEBUG
-                    print("Dispatcher: Numeric evaluation failed ('\(msg)'). Switching to Symbolic Engine.")
+                    print("Dispatcher: Numeric evaluation needs symbolic fallback. Use evaluateAsync for symbolic results.")
                     #endif
-                    result = symbolicEngine.evaluate(ast: ast, context: context)
-                    opType = "fallback"
+                    // Do not call symbolicEngine.evaluate() because it is blocking/deadlock risk
+                    // and will just return a .symbolicComputationRequired error anyway.
                 }
             }
             let evalEnd = CFAbsoluteTimeGetCurrent()
@@ -138,6 +140,41 @@ final class Dispatcher {
             return buildReport(result: result, opType: opType, ast: ast, expression: expression,
                              parseTimeMs: parseTimeMs, evalTimeMs: evalTimeMs,
                              startTime: startTime, startMemory: startMemory)
+        }
+    }
+    
+    /// Evaluate expression and collect intermediate steps for "Show Work"
+    func evaluateWithWork(expression: String, context: EvaluationContext = .empty) async throws -> ([Node], EvaluationReport) {
+        let startTime = CFAbsoluteTimeGetCurrent()
+        let startMemory = MetricsCollector.currentMemoryKB()
+        
+        let parseResult = Parser.parse(expression)
+        
+        switch parseResult {
+        case .failure(let error):
+            let report = EvaluationReport(result: .error(error.localizedDescription), metrics: .empty)
+            return ([], report)
+            
+        case .success(let ast):
+            var steps: [Node] = [ast]
+            var current = ast
+            
+            // Limit steps to prevent infinite loops or excessive UI load
+            for _ in 0..<20 {
+                // Check if the parent Task was cancelled (e.g., user started new evaluation)
+                try Task.checkCancellation()
+                
+                if let next = current.simplifyStep(bindings: context.variableBindings) {
+                    steps.append(next)
+                    current = next
+                } else {
+                    break
+                }
+            }
+            
+            // Use evaluateAsync to get the final official result/metrics without blocking
+            let report = await evaluateAsync(expression: expression, context: context)
+            return (steps, report)
         }
     }
     

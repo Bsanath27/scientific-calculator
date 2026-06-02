@@ -1,10 +1,13 @@
-// OCREngine/OCRPreprocessor.swift
-// Scientific Calculator - Phase 4: Image Preprocessing for OCR
-// Prepares images and PDFs before sending to OCR service.
-// No math logic — image manipulation only.
-
 import Foundation
+#if canImport(UIKit)
+import UIKit
+public typealias NativeImage = UIImage
+public typealias NativeColor = UIColor
+#elseif canImport(AppKit)
 import AppKit
+public typealias NativeImage = NSImage
+public typealias NativeColor = NSColor
+#endif
 import PDFKit
 
 /// Preprocesses images and PDFs for OCR recognition
@@ -13,12 +16,19 @@ struct OCRPreprocessor {
     /// Maximum image dimension for OCR (model works best with reasonable sizes)
     private static let maxDimension: CGFloat = 1024
     
-    /// Prepare image data from NSImage for OCR
-    /// - Parameter image: Input NSImage
+    /// Prepare image data from NativeImage for OCR
+    /// - Parameter image: Input NativeImage
     /// - Returns: PNG-encoded image data, resized if needed
-    static func prepareImage(_ image: NSImage) -> Data? {
-        guard let resized = resizeIfNeeded(image) else { return nil }
-        return pngData(from: resized)
+    static func prepareImage(_ image: NativeImage) -> Data? {
+        #if canImport(UIKit)
+        return image.pngData()
+        #else
+        guard let tiffData = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData) else {
+            return nil
+        }
+        return bitmap.representation(using: .png, properties: [:])
+        #endif
     }
     
     /// Extract first page of PDF as image data for OCR
@@ -30,25 +40,29 @@ struct OCRPreprocessor {
         
         let bounds = page.bounds(for: .mediaBox)
         let scale: CGFloat = min(maxDimension / bounds.width, maxDimension / bounds.height, 2.0)
-        let size = NSSize(
-            width: bounds.width * scale,
-            height: bounds.height * scale
-        )
         
-        let image = NSImage(size: size)
+        #if canImport(UIKit)
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: bounds.width * scale, height: bounds.height * scale))
+        let imgData = renderer.pngData { ctx in
+            UIColor.white.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: bounds.width * scale, height: bounds.height * scale))
+            ctx.cgContext.scaleBy(x: scale, y: scale)
+            page.draw(with: .mediaBox, to: ctx.cgContext)
+        }
+        return imgData
+        #else
+        let size = CGSize(width: bounds.width * scale, height: bounds.height * scale)
+        let image = NativeImage(size: size)
         image.lockFocus()
-        
         if let context = NSGraphicsContext.current {
-            // White background
             NSColor.white.setFill()
             NSBezierPath.fill(NSRect(origin: .zero, size: size))
-            
             context.cgContext.scaleBy(x: scale, y: scale)
             page.draw(with: .mediaBox, to: context.cgContext)
         }
-        
         image.unlockFocus()
-        return pngData(from: image)
+        return prepareImage(image)
+        #endif
     }
     
     /// Load image from file URL (supports PNG, JPG, TIFF, PDF)
@@ -56,61 +70,29 @@ struct OCRPreprocessor {
     /// - Returns: PNG-encoded image data ready for OCR
     static func loadFromFile(_ url: URL) -> Data? {
         let ext = url.pathExtension.lowercased()
+        if ext == "pdf" { return extractPDFPage(url) }
         
-        if ext == "pdf" {
-            return extractPDFPage(url)
-        }
-        
-        guard let image = NSImage(contentsOf: url) else { return nil }
+        #if canImport(UIKit)
+        guard let image = UIImage(contentsOfFile: url.path) else { return nil }
+        #else
+        guard let image = NativeImage(contentsOf: url) else { return nil }
+        #endif
         return prepareImage(image)
     }
     
-    /// Get image from clipboard
-    /// - Returns: PNG-encoded image data if clipboard contains an image
+    /// Extract image data from the system clipboard/pasteboard
+    /// - Returns: PNG-encoded image data if found
     static func fromClipboard() -> Data? {
+        #if canImport(AppKit)
         let pasteboard = NSPasteboard.general
-        
-        guard let image = NSImage(pasteboard: pasteboard) else { return nil }
-        return prepareImage(image)
-    }
-    
-    // MARK: - Private Helpers
-    
-    /// Resize image if it exceeds max dimensions
-    private static func resizeIfNeeded(_ image: NSImage) -> NSImage? {
-        let size = image.size
-        
-        // Check if resize needed
-        if size.width <= maxDimension && size.height <= maxDimension {
-            return image
-        }
-        
-        // Calculate scale to fit within max dimensions
-        let scale = min(maxDimension / size.width, maxDimension / size.height)
-        let newSize = NSSize(
-            width: size.width * scale,
-            height: size.height * scale
-        )
-        
-        let resized = NSImage(size: newSize)
-        resized.lockFocus()
-        image.draw(
-            in: NSRect(origin: .zero, size: newSize),
-            from: NSRect(origin: .zero, size: size),
-            operation: .copy,
-            fraction: 1.0
-        )
-        resized.unlockFocus()
-        
-        return resized
-    }
-    
-    /// Convert NSImage to PNG data
-    private static func pngData(from image: NSImage) -> Data? {
-        guard let tiffData = image.tiffRepresentation,
-              let bitmap = NSBitmapImageRep(data: tiffData) else {
-            return nil
-        }
+        guard let tiffData = pasteboard.data(forType: .tiff) else { return nil }
+        guard let bitmap = NSBitmapImageRep(data: tiffData) else { return nil }
         return bitmap.representation(using: .png, properties: [:])
+        #elseif canImport(UIKit)
+        guard let image = UIPasteboard.general.image else { return nil }
+        return image.pngData()
+        #else
+        return nil
+        #endif
     }
 }

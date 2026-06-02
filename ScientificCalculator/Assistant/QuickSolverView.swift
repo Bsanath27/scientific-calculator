@@ -62,8 +62,12 @@ struct QuickSolverView: View {
                     Spacer()
                     
                     Button(action: {
+                        #if os(macOS)
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(result, forType: .string)
+                        #else
+                        UIPasteboard.general.string = result
+                        #endif
                     }) {
                         Image(systemName: "doc.on.doc")
                             .foregroundColor(.secondary)
@@ -82,27 +86,34 @@ struct QuickSolverView: View {
     private func solve() {
         guard !input.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         
-        // Translate NL → expression
-        let translation = NLTranslator.translate(input)
-        didTranslate = translation.didTranslate
-        translatedExpression = translation.expression
-        
-        // Evaluate
-        let expr = translation.expression
-        guard !expr.isEmpty else {
-            result = "Could not parse"
-            return
+        Task {
+            // Translate NL → expression
+            let translation = NLTranslator.translate(input)
+            
+            await MainActor.run {
+                didTranslate = translation.didTranslate
+                translatedExpression = translation.expression
+            }
+            
+            // Evaluate
+            let expr = translation.expression
+            guard !expr.isEmpty else {
+                await MainActor.run { result = "Could not parse" }
+                return
+            }
+            
+            // Use symbolic mode for calculus/solve operations
+            if translation.operation != .evaluate {
+                await MainActor.run { dispatcher.mode = .symbolic }
+            }
+            
+            let report = await dispatcher.evaluateAsync(expression: expr)
+            
+            await MainActor.run {
+                result = report.resultString
+                dispatcher.mode = .numeric
+            }
         }
-        
-        // Use symbolic mode for calculus/solve operations
-        if translation.operation != .evaluate {
-            dispatcher.mode = .symbolic
-        }
-        
-        let report = dispatcher.evaluate(expression: expr)
-        result = report.resultString
-        
-        dispatcher.mode = .numeric
     }
 }
 

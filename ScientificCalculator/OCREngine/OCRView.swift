@@ -5,6 +5,11 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 struct OCRView: View {
     @StateObject private var viewModel = OCRViewModel()
@@ -66,6 +71,7 @@ struct OCRView: View {
             Group {
                 if let image = viewModel.selectedImage {
                     GroupBox("Image Preview") {
+                        #if os(macOS)
                         Image(nsImage: image)
                             .resizable()
                             .scaledToFit()
@@ -73,6 +79,15 @@ struct OCRView: View {
                             .frame(maxWidth: .infinity)
                             .background(Color.white)
                             .cornerRadius(4)
+                        #else
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 150)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.white)
+                            .cornerRadius(4)
+                        #endif
                     }
                 } else {
                     // Drop zone when no image is loaded
@@ -199,8 +214,12 @@ struct OCRView: View {
                     .help("Check if the expression is a valid identity (simplifies to 0)")
                     
                     Button("Copy Expression") {
+                        #if os(macOS)
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(viewModel.recognizedExpression, forType: .string)
+                        #elseif canImport(UIKit)
+                        UIPasteboard.general.string = viewModel.recognizedExpression
+                        #endif
                     }
                 }
             }
@@ -247,7 +266,11 @@ struct OCRView: View {
                     
                     DispatchQueue.main.async {
                         if let imageData = OCRPreprocessor.loadFromFile(url) {
+                            #if os(macOS)
                             viewModel.selectedImage = NSImage(contentsOf: url) ?? NSImage(data: imageData)
+                            #elseif canImport(UIKit)
+                            viewModel.selectedImage = UIImage(contentsOfFile: url.path) ?? UIImage(data: imageData)
+                            #endif
                             viewModel.recognizeCurrentImage()
                         }
                     }
@@ -258,6 +281,7 @@ struct OCRView: View {
         
         // Try to load raw image data
         for provider in providers {
+            #if os(macOS)
             if provider.canLoadObject(ofClass: NSImage.self) {
                 provider.loadObject(ofClass: NSImage.self) { image, _ in
                     guard let nsImage = image as? NSImage else { return }
@@ -268,6 +292,18 @@ struct OCRView: View {
                 }
                 return true
             }
+            #elseif canImport(UIKit)
+            if provider.canLoadObject(ofClass: UIImage.self) {
+                provider.loadObject(ofClass: UIImage.self) { image, _ in
+                    guard let uiImage = image as? UIImage else { return }
+                    DispatchQueue.main.async {
+                        viewModel.selectedImage = uiImage
+                        viewModel.recognizeCurrentImage()
+                    }
+                }
+                return true
+            }
+            #endif
         }
         
         return false
